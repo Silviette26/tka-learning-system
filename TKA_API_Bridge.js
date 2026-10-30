@@ -9,7 +9,7 @@
 (function () {
   'use strict';
 
-  const TKA_WORKER_URL = 'https://GANTI-NAMA-WORKER.workers.dev';
+  const TKA_WORKER_URL = 'https://tka-smpn14-api.satria-tu39.workers.dev';
 
   function invoke(method, args, success, failure) {
     fetch(TKA_WORKER_URL, {
