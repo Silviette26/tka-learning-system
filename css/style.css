@@ -1,3 +1,5 @@
+
+
 :root{
   --navy:#172554;
   --blue:#2563eb;
@@ -607,7 +609,7 @@ math-field{border-color:#dfe7e3;box-shadow:inset 0 1px 2px rgba(20,50,44,.025)}
 @media(max-width:700px){.toolbar-left{width:100%}.toolbar-hint{flex:1}.math-palette{width:min(370px,calc(100vw - 38px))!important;right:-4px}.question-visual-editor{min-height:150px;padding:14px}.math-palette-grid{grid-template-columns:repeat(3,1fr)!important}}
 .matrix-picker{margin:4px 12px 10px;padding:10px;border:1px solid #dfe9e4;border-radius:10px;background:#f8fbfa}.matrix-picker>b{display:block;font-size:11px;color:#62726b;margin-bottom:7px}.matrix-size-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.matrix-size-grid button{border:1px solid #d7e4de;background:#fff;border-radius:7px;padding:7px 3px;font-size:11px;color:#245343;cursor:pointer}.matrix-size-grid button:hover{background:#edf8f2}
 
-<style>
+
 .rich-option-grid{align-items:start}
 .rich-option-card{position:relative;min-width:0}
 .rich-option-label{font-weight:800;color:#41534c;margin-bottom:7px;font-size:13px}
@@ -622,3 +624,12 @@ math-field{border-color:#dfe7e3;box-shadow:inset 0 1px 2px rgba(20,50,44,.025)}
 .student-options .option-stimulus-image{margin-top:7px}.student-options .option-stimulus-image img{max-width:280px;max-height:180px}
 .preview-options>div{margin-bottom:12px}.preview-options .option-stimulus-image img{max-width:300px;max-height:180px}
 .question-options .option-stimulus-image img{max-width:220px;max-height:130px}
+
+
+/* Visual math editor v4: compact inline equations and normal text flow */
+.question-visual-editor{display:block;overflow-wrap:anywhere;word-break:normal;white-space:pre-wrap;line-height:1.65}
+.question-visual-editor .inline-math-field,.rich-option-editor .inline-math-field{display:inline-block !important;vertical-align:baseline !important;width:auto !important;min-width:1.5em !important;max-width:100% !important;height:auto !important;margin:0 2px !important;padding:0 2px !important;line-height:1 !important;white-space:nowrap !important;box-sizing:content-box !important}
+.question-visual-editor .inline-math-field + .inline-math-field,.rich-option-editor .inline-math-field + .inline-math-field{margin-left:2px !important}
+.question-visual-editor > math-field{vertical-align:baseline !important}
+.rich-option-editor{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55}
+
