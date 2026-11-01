@@ -1,3 +1,5 @@
+
+
 let APP={user:null,mapel:[],kategori:[],guru:[],bank:[],exams:[],studentExams:[],attempt:null,timer:null,currentIndex:0,answers:{},imageBaseUrl:''};
 document.addEventListener('DOMContentLoaded',()=>{google.script.run.withSuccessHandler(d=>{APP.mapel=d.mapel||[];APP.kategori=d.kategori||[];APP.guru=d.guru||[];APP.imageBaseUrl=d.imageBaseUrl||'';renderSubjects();populateMapelSelects();populatePercentOptions();renderQuestionTypeFields();initQuestionEditor();}).getBootstrapData();const t=document.getElementById('qType');if(t)t.addEventListener('change',renderQuestionTypeFields);});
 function doLogin(){const msg=document.getElementById('loginMessage');msg.textContent='Memeriksa...';google.script.run.withSuccessHandler(r=>{if(!r.ok){msg.textContent=r.message;return;}APP.user=r.user;document.getElementById('loginPage').classList.add('hidden');document.getElementById('mainPage').classList.remove('hidden');document.getElementById('userName').textContent=r.user.nama;document.getElementById('userRole').textContent=r.user.role;if(r.user.role==='SISWA'){document.getElementById('teacherSidebar').classList.add('hidden');document.getElementById('studentSidebar').classList.remove('hidden');document.getElementById('studentHomeName').textContent=r.user.nama;showView('studentHome');loadStudentExams();}else{document.getElementById('teacherSidebar').classList.remove('hidden');document.getElementById('studentSidebar').classList.add('hidden');showView('dashboard');}}).login(document.getElementById('username').value,document.getElementById('password').value);}
@@ -33,6 +35,64 @@ function getActiveMathField(id){
  const ae=document.activeElement;
  if(ae&&ae.tagName&&ae.tagName.toLowerCase()==='math-field'&&ae.closest('#'+id))return ae;
  return null;
+}
+function mathSelectionIsNonEmpty(mf){
+  try{
+    const ranges = mf?.selection?.ranges || [];
+    return ranges.some(r => Number(r[0]) !== Number(r[1]));
+  }catch(e){
+    return false;
+  }
+}
+function mathTemplateForSelection(latex, mf){
+  const x = String(latex || '');
+
+  // Tidak ada selection → gunakan template biasa
+  if(!mathSelectionIsNonEmpty(mf)){
+    return x;
+  }
+
+  // FRACTION
+  if(x === '\\frac{#?}{#?}'){
+    return '\\frac{#@}{#?}';
+  }
+
+  // ROOT
+  if(x === '\\sqrt{#?}'){
+    return '\\sqrt{#@}';
+  }
+
+  // NTH ROOT
+  if(x === '\\sqrt[#?]{#?}'){
+    return '\\sqrt[#?]{#@}';
+  }
+
+  // POWER
+  if(x === 'x^{#?}'){
+    return '^{#@}';
+  }
+
+  // SUBSCRIPT
+  if(x === 'x_{#?}'){
+    return '_{#@}';
+  }
+
+  // SIGMA
+  if(x === '\\sum_{#?}^{#?} #?'){
+    return '\\sum_{#?}^{#?} #@';
+  }
+
+  // INTEGRAL
+  if(x === '\\int_{#?}^{#?} #?\\,dx'){
+    return '\\int_{#?}^{#?} #@\\,dx';
+  }
+
+  // LOG
+  if(x === '\\log_{#?}(#?)'){
+    return '\\log_{#?}(#@)';
+  }
+
+  return x;
 }
 function rememberActiveMathField(mf){if(mf&&mf.tagName&&mf.tagName.toLowerCase()==='math-field'){APP.activeMathField=mf;APP.richTarget=mf.closest('.rich-option-editor')?.id||APP.richTarget;}}
 function clearActiveMathField(mf){if(APP.activeMathField===mf)APP.activeMathField=null;}
@@ -91,6 +151,103 @@ function normalizeInlineMathField(mf){
   mf.style.maxHeight='none';
   mf.style.lineHeight='1';
 }
+function removeInlineMathField(mf,direction='backward'){
+
+  if(!mf || !mf.parentNode) return;
+
+  const parent = mf.parentNode;
+
+  /*
+   * Tentukan node tempat cursor akan diletakkan.
+   */
+  let targetNode;
+
+  if(direction === 'forward'){
+    targetNode = mf.nextSibling;
+  }else{
+    targetNode = mf.previousSibling;
+  }
+
+  /*
+   * Hapus math-field.
+   */
+  mf.remove();
+
+  /*
+   * Jika node tujuan belum ada,
+   * buat text node kosong.
+   */
+  if(!targetNode){
+
+    targetNode = document.createTextNode('');
+
+    if(direction === 'forward'){
+      parent.appendChild(targetNode);
+    }else{
+      parent.insertBefore(
+        targetNode,
+        parent.firstChild
+      );
+    }
+  }
+
+  /*
+   * Letakkan cursor di posisi yang tepat.
+   */
+  const range = document.createRange();
+
+  range.selectNodeContents(targetNode);
+
+  if(direction === 'forward'){
+    range.collapse(true);
+  }else{
+    range.collapse(false);
+  }
+
+  const sel = window.getSelection();
+
+  sel.removeAllRanges();
+  sel.addRange(range);
+
+  /*
+   * Bersihkan active MathLive.
+   */
+  if(APP.activeMathField === mf){
+    APP.activeMathField = null;
+  }
+
+  /*
+   * Simpan selection editor.
+   */
+  const editor = parent.closest(
+    '[contenteditable="true"]'
+  );
+
+  if(editor){
+
+    APP.richTarget = editor.id;
+
+    if(editor.id === 'questionEditor'){
+
+      APP.questionSelection =
+        range.cloneRange();
+
+      syncHiddenQuestion();
+
+    }else{
+
+      APP.richSelections =
+        APP.richSelections || {};
+
+      APP.richSelections[editor.id] =
+        range.cloneRange();
+
+      if(typeof syncRichHidden === 'function'){
+        syncRichHidden(editor.id);
+      }
+    }
+  }
+}
 function attachMathFieldBehavior(mf){
   normalizeInlineMathField(mf);
   if(!mf||mf.dataset.behaviorAttached==='1')return;
@@ -105,6 +262,51 @@ function attachMathFieldBehavior(mf){
     }
   });
   mf.addEventListener('keydown',ev=>{
+      // =================================================
+    // BACKSPACE
+    // =================================================
+    if(ev.key === 'Backspace'){
+
+      /*
+       * Jika cursor berada di awal equation,
+       * hapus seluruh equation.
+       */
+      if(mathFieldAtStart(mf)){
+
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        removeInlineMathField(
+          mf,
+          'backward'
+        );
+
+        return;
+      }
+    }
+
+    // =================================================
+    // DELETE
+    // =================================================
+    if(ev.key === 'Delete'){
+
+      /*
+       * Jika cursor berada di akhir equation,
+       * hapus seluruh equation.
+       */
+      if(mathFieldAtEnd(mf)){
+
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        removeInlineMathField(
+          mf,
+          'forward'
+        );
+
+        return;
+      }
+    }
     // Word-like inline behavior: space at the right edge leaves the equation.
     if(ev.key===' ' && mathFieldAtEnd(mf)){
       ev.preventDefault();
@@ -139,40 +341,193 @@ function mathLatexForInsert(s){
  return x;
 }
 function insertMathIntoEditor(latex,id){
- if(APP.mathInsertLock)return;
- APP.mathInsertLock=true;
- setTimeout(()=>{APP.mathInsertLock=false;},180);
- const editor=document.getElementById(id);if(!editor)return;
- const active=getActiveMathField(id);
- if(active){
-   try{
-     const expr=String(latex||'');
-     const nested=expr.includes('#@')?expr:expr.replace(/\\sqrt\{#\?\}/,'\\sqrt{#@}').replace(/\\sqrt\[\#\?\]\{#\?\}/,'\\sqrt[#?]{#@}').replace(/^x\^\{#\?\}$/, '^{#@}').replace(/^x_\{#\?\}$/, '_{#@}');
-     active.focus();
-     active.insert(nested,{selectionMode:'placeholder'});
-     rememberActiveMathField(active);
-     closeMathPalette();
-     if(id==='questionEditor')syncHiddenQuestion();else if(typeof syncRichHidden==='function')syncRichHidden(id);
-     return;
-   }catch(e){
-     try{active.focus();active.executeCommand('insert',mathLatexForInsert(latex));rememberActiveMathField(active);return;}catch(e2){}
-   }
- }
- if(id==='questionEditor')restoreQuestionSelection();else if(typeof restoreRichSelection==='function')restoreRichSelection(id);
- const sel=window.getSelection();if(!sel||!sel.rangeCount)return;
- const range=sel.getRangeAt(0);if(!editor.contains(range.commonAncestorContainer)){range.selectNodeContents(editor);range.collapse(false);}
- range.deleteContents();
- const mf=document.createElement('math-field');
- mf.className='inline-math-field';mf.setAttribute('virtual-keyboard-mode','manual');mf.setAttribute('menu-items','none');mf.setAttribute('smart-mode','false');try{mf.defaultMode='inline-math';}catch(e){}mf.style.fontSize='1em';
- range.insertNode(mf);
- const raw=String(latex||'');
- const value=raw.replace(/\\placeholder\{([^{}]*)\}/g,'$1');
- try{mf.value=value;}catch(e){try{mf.setValue(value);}catch(e2){}}
- attachMathFieldBehavior(mf);
- const after=document.createRange();after.setStartAfter(mf);after.collapse(true);sel.removeAllRanges();sel.addRange(after);
- if(id==='questionEditor'){APP.questionSelection=after.cloneRange();syncHiddenQuestion();}else{APP.richSelections=APP.richSelections||{};APP.richSelections[id]=after.cloneRange();if(typeof syncRichHidden==='function')syncRichHidden(id);}
- APP.activeMathField=mf;
- closeMathPalette();requestAnimationFrame(()=>{try{mf.focus();rememberActiveMathField(mf);}catch(e){}});
+
+  // Mencegah satu klik toolbar diproses dua kali
+  if(APP.mathInsertLock) return;
+
+  APP.mathInsertLock = true;
+
+  setTimeout(()=>{
+    APP.mathInsertLock = false;
+  },180);
+
+  const editor = document.getElementById(id);
+  if(!editor) return;
+
+  const active = getActiveMathField(id);
+
+  // =====================================================
+  // JIKA SEDANG BERADA DI DALAM EQUATION
+  // =====================================================
+  if(active){
+
+    try{
+
+      /*
+       * Simpan selection sebelum tombol palette kehilangan focus.
+       */
+      const originalSelection = active.selection;
+
+      /*
+       * Tentukan template berdasarkan selection.
+       *
+       * Contoh:
+       * 4 → √ → √4
+       * x → pangkat → x^□
+       * 4 → pecahan → 4 menjadi pembilang
+       */
+      const expr = mathTemplateForSelection(latex,active);
+
+      /*
+       * Kembalikan selection.
+       * Ini penting karena ketika tombol palette diklik,
+       * browser dapat memindahkan focus dari math-field.
+       */
+      try{
+        if(originalSelection){
+          active.selection = originalSelection;
+        }
+      }catch(e){}
+
+      /*
+       * Masukkan hanya SATU KALI.
+       */
+      active.insert(expr,{
+        selectionMode:'placeholder',
+        focus:true
+      });
+
+      rememberActiveMathField(active);
+
+      closeMathPalette();
+
+      if(id === 'questionEditor'){
+        syncHiddenQuestion();
+      }else if(typeof syncRichHidden === 'function'){
+        syncRichHidden(id);
+      }
+
+      return;
+
+    }catch(e){
+
+      console.warn(
+        'MathLive insertion error:',
+        e
+      );
+
+    }
+  }
+
+  // =====================================================
+  // JIKA TIDAK ADA EQUATION AKTIF
+  // =====================================================
+
+  if(id === 'questionEditor'){
+    restoreQuestionSelection();
+  }else if(typeof restoreRichSelection === 'function'){
+    restoreRichSelection(id);
+  }
+
+  const sel = window.getSelection();
+
+  if(!sel || !sel.rangeCount){
+    return;
+  }
+
+  const range = sel.getRangeAt(0);
+
+  /*
+   * Pastikan cursor masih berada di editor.
+   */
+  if(!editor.contains(range.commonAncestorContainer)){
+    range.selectNodeContents(editor);
+    range.collapse(false);
+  }
+
+  range.deleteContents();
+
+  /*
+   * Buat math-field baru.
+   */
+  const mf = document.createElement('math-field');
+
+  mf.className = 'inline-math-field';
+
+  mf.setAttribute(
+    'virtual-keyboard-mode',
+    'manual'
+  );
+
+  mf.setAttribute(
+    'menu-items',
+    'none'
+  );
+
+  mf.setAttribute(
+    'smart-mode',
+    'false'
+  );
+
+  try{
+    mf.defaultMode = 'inline-math';
+  }catch(e){}
+
+  mf.style.fontSize = '1em';
+
+  /*
+   * Masukkan template.
+   */
+  try{
+    mf.value = mathLatexForInsert(latex);
+  }catch(e){
+    mf.value = String(latex || '');
+  }
+
+  /*
+   * Tambahkan ke editor.
+   */
+  range.insertNode(mf);
+
+  /*
+   * Sisipkan text node setelah equation.
+   * Ini membuat cursor bisa keluar seperti Word.
+   */
+  const space = document.createTextNode(' ');
+
+  if(mf.nextSibling){
+    mf.parentNode.insertBefore(
+      space,
+      mf.nextSibling
+    );
+  }else{
+    mf.parentNode.appendChild(space);
+  }
+
+  /*
+   * Pasang behavior MathLive.
+   */
+  attachMathFieldBehavior(mf);
+
+  /*
+   * Focus ke equation.
+   */
+  try{
+    mf.focus();
+  }catch(e){}
+
+  rememberActiveMathField(mf);
+
+  /*
+   * Sync data.
+   */
+  if(id === 'questionEditor'){
+    syncHiddenQuestion();
+  }else if(typeof syncRichHidden === 'function'){
+    syncRichHidden(id);
+  }
+
+  closeMathPalette();
 }
 function insertMathLatex(latex){insertMathIntoEditor(latex,getMathTargetId());}
 function insertMathTemplate(type){const t={fraction:'\\frac{#?}{#?}',power:'x^{#?}',root:'\\sqrt{#?}',rootn:'\\sqrt[#?]{#?}',subscript:'x_{#?}',pm:'\\pm',pi:'\\pi',theta:'\\theta',degree:'^{\\circ}',infinity:'\\infty',leq:'\\leq',neq:'\\ne',sum:'\\sum_{#?}^{#?} #?',integral:'\\int_{#?}^{#?} #?\\,dx',matrix:'\\begin{pmatrix}#?&#?\\\\#?&#?\\end{pmatrix}',log:'\\log_{#?}(#?)'};if(t[type])insertMathIntoEditor(t[type],getMathTargetId());}
@@ -184,7 +539,73 @@ function insertMath(latex){
  };
  insertMathTemplate(map[latex]||'pi');
 }
-function serializeQuestionNode(node){if(node.nodeType===Node.TEXT_NODE)return node.nodeValue||'';if(node.nodeType!==Node.ELEMENT_NODE)return '';if(node.tagName==='BR')return '\n';if(node.tagName.toLowerCase()==='math-field')return '\\('+cleanMathLatex(node.value||'')+'\\)';let out='';node.childNodes.forEach(n=>out+=serializeQuestionNode(n));if(['DIV','P'].includes(node.tagName))out+='\n';return out;}
+// Helper global: membersihkan placeholder LaTeX dari MathLive sebelum disimpan.
+// Diletakkan di lingkup global agar dapat dipakai editor soal dan editor opsi.
+function cleanMathLatex(raw){
+  let s = String(raw || '');
+  for (let i = 0; i < 5; i++) {
+    const next = s.replace(/\\placeholder\{([^{}]*)\}/g, '$1');
+    if (next === s) break;
+    s = next;
+  }
+  return s;
+}
+
+function serializeQuestionNode(node){
+
+  if(node.nodeType === Node.TEXT_NODE){
+    return node.nodeValue || '';
+  }
+
+  if(node.nodeType !== Node.ELEMENT_NODE){
+    return '';
+  }
+
+  if(node.tagName === 'BR'){
+    return '\n';
+  }
+
+  if(
+    node.tagName.toLowerCase() === 'math-field'
+  ){
+
+    let value = '';
+
+    try{
+
+      value =
+        node.getValue?.(
+          'latex-without-placeholders'
+        ) ||
+        node.value ||
+        '';
+
+    }catch(e){
+
+      value =
+        node.value ||
+        '';
+    }
+
+    return '\\(' +
+      cleanMathLatex(value) +
+      '\\)';
+  }
+
+  let out = '';
+
+  node.childNodes.forEach(
+    n => out += serializeQuestionNode(n)
+  );
+
+  if(
+    ['DIV','P'].includes(node.tagName)
+  ){
+    out += '\n';
+  }
+
+  return out;
+}
 function serializeQuestionEditor(){const editor=document.getElementById('questionEditor');if(!editor)return '';let out='';editor.childNodes.forEach(n=>out+=serializeQuestionNode(n));return out.replace(/\n{3,}/g,'\n\n').trim();}
 function syncHiddenQuestion(){const ta=document.getElementById('textQuestion');if(ta)ta.value=serializeQuestionEditor();}
 function renderQuestionEditorContent(raw){const editor=document.getElementById('questionEditor');if(!editor)return;editor.innerHTML='';let text=String(raw??'').replace(/^TEXT::/,'');const re=/\\\(([\s\S]*?)\\\)/g;let last=0,m;while((m=re.exec(text))){if(m.index>last)editor.appendChild(document.createTextNode(text.slice(last,m.index)));const mf=document.createElement('math-field');mf.className='inline-math-field';mf.setAttribute('virtual-keyboard-mode','manual');mf.setAttribute('menu-items','none');mf.setAttribute('smart-mode','false');try{mf.defaultMode='inline-math';}catch(e){}mf.style.fontSize='1em';mf.value=m[1];attachMathFieldBehavior(mf);editor.appendChild(mf);editor.appendChild(document.createTextNode(' '));last=re.lastIndex;}if(last<text.length)editor.appendChild(document.createTextNode(text.slice(last)));if(typeof attachMathFieldBehavior==='function')editor.querySelectorAll('math-field').forEach(attachMathFieldBehavior);syncHiddenQuestion();}
@@ -337,3 +758,68 @@ function viewStudentResult(id){google.script.run.withSuccessHandler(showStudentR
   window.renderPreviewQuestion=function(q){let body='';if(q.tipe==='PG'||q.tipe==='PG_KOMPLEKS')body=`<div class="preview-options"><div>A. ${renderOptionContent(q.opsiA)}</div><div>B. ${renderOptionContent(q.opsiB)}</div><div>C. ${renderOptionContent(q.opsiC)}</div><div>D. ${renderOptionContent(q.opsiD)}</div></div>`;else if(q.tipe==='TABEL'){const o=readScoringConfig(q);body=`<table class="mini-table"><tr><th>Pernyataan</th><th>${escapeHtml(o.labels?.[0]||'Label 1')}</th><th>${escapeHtml(o.labels?.[1]||'Label 2')}</th></tr>${['A','B','C','D'].map(x=>`<tr><td>${x}. ${renderOptionContent(q['opsi'+x])}</td><td>○</td><td>○</td></tr>`).join('')}</table>`;}return `<div class="preview-question"><div class="question-meta"><span class="tag">Soal ${q.nomor}</span><span class="tag">${escapeHtml(typeName(q.tipe))}</span><span class="tag">Bobot ${Number(q.bobot||0)}</span></div><div class="preview-question-text">${renderQuestion(q.pertanyaan)}</div>${body}</div>`;};
 })();
 
+/* ==========================================================
+   WAYGROUND-INSPIRED EQUATION EDITOR
+   Terhubung ke editor pertanyaan dan seluruh editor opsi.
+   Format simpan tetap \(...\), kompatibel dengan sistem lama.
+========================================================== */
+(function(){
+  const state={targetId:'questionEditor',editingField:null,mode:'visual',originalLatex:''};
+  const modal=()=>document.getElementById('equationEditorModal');
+  const field=()=>document.getElementById('eqModalField');
+  const latexInput=()=>document.getElementById('eqLatexInput');
+  function clean(v){return String(v||'').replace(/\\placeholder\{([^{}]*)\}/g,'#?').trim();}
+  window.openEquationEditor=function(ev,targetId='questionEditor',editingField=null){
+    if(ev){ev.preventDefault?.();ev.stopPropagation?.();}
+    state.targetId=targetId||'questionEditor';
+    const activeField=APP.activeMathField;
+    state.editingField=editingField||(activeField&&activeField.isConnected&&activeField.closest('#'+state.targetId)?activeField:null);
+    APP.richTarget=state.targetId;
+    if(!state.editingField){
+      if(state.targetId==='questionEditor')rememberQuestionSelection();
+      else if(typeof rememberRichSelection==='function')rememberRichSelection(state.targetId);
+    }
+    const initial=state.editingField?clean(state.editingField.value):'';
+    state.originalLatex=initial;
+    const mf=field();if(!mf)return;
+    mf.value=initial; if(latexInput())latexInput().value=initial;
+    setEquationMode('visual');modal()?.classList.remove('hidden');
+    document.body.style.overflow='hidden';
+    setTimeout(()=>{try{mf.focus();}catch(e){}},80);
+  };
+  window.closeEquationEditor=function(){modal()?.classList.add('hidden');document.body.style.overflow='';state.editingField=null;};
+  window.setEquationMode=function(mode){
+    state.mode=mode==='latex'?'latex':'visual';
+    document.querySelectorAll('[data-eq-mode]').forEach(b=>b.classList.toggle('active',b.dataset.eqMode===state.mode));
+    document.getElementById('eqVisualPanel')?.classList.toggle('hidden',state.mode!=='visual');
+    document.getElementById('eqLatexPanel')?.classList.toggle('hidden',state.mode!=='latex');
+    const note=document.getElementById('eqModeNote');if(note)note.textContent=state.mode==='visual'?'Pilih simbol untuk menyusun persamaan':'Edit kode LaTeX secara langsung';
+    if(state.mode==='latex'&&latexInput()){latexInput().value=clean(field()?.value);latexInput().focus();}
+    if(state.mode==='visual'){try{field()?.focus();}catch(e){}}
+  };
+  window.syncEquationFromLatex=function(){const mf=field(),ta=latexInput();if(!mf||!ta)return;try{mf.value=ta.value;}catch(e){}};
+  window.insertEquationSymbol=function(expr){const mf=field();if(!mf)return;try{mf.focus();mf.insert(expr,{selectionMode:'placeholder',focus:true});if(latexInput())latexInput().value=mf.value;}catch(e){console.warn('Gagal memasukkan simbol:',e);}};
+  window.applyEquationEditor=function(){
+    const mf=field();if(!mf)return;const latex=clean(state.mode==='latex'?(latexInput()?.value??mf.value):mf.value);
+    if(!latex){alert('Silakan isi rumus terlebih dahulu.');return;}
+    if(state.editingField&&state.editingField.isConnected){
+      state.editingField.value=latex;
+      try{state.editingField.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}
+      if(state.targetId==='questionEditor')syncHiddenQuestion();else if(typeof syncRichHidden==='function')syncRichHidden(state.targetId);
+    }else{
+      // Sisipkan sebagai satu inline math-field pada posisi caret yang tersimpan.
+      if(state.targetId==='questionEditor'){
+        if(typeof restoreQuestionSelection==='function')restoreQuestionSelection();
+      }else if(typeof restoreRichSelection==='function')restoreRichSelection(state.targetId);
+      insertMathIntoEditor(latex,state.targetId);
+    }
+    queueMathTypeset();window.closeEquationEditor();
+  };
+  // Capture double-click before MathLive's own handler so existing formulas can be edited.
+  document.addEventListener('dblclick',e=>{const mf=e.target?.closest?.('math-field');if(!mf)return;const editor=mf.closest('.question-visual-editor,.rich-option-editor');if(!editor)return;e.preventDefault();e.stopPropagation();window.openEquationEditor(e,editor.id,mf);},true);
+  // Backdrop click and Escape close the dialog; clicks inside do not.
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal()?.classList.contains('hidden'))window.closeEquationEditor();});
+  // Compatibility aliases: old calls now open the full editor instead of the compact palette.
+  window.toggleMathPalette=function(ev){window.openEquationEditor(ev,'questionEditor');};
+  window.openOptionMath=function(ev,id){window.openEquationEditor(ev,id);};
+})();
