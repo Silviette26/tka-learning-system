@@ -988,3 +988,265 @@ textarea:focus-visible{
     transition-duration:.01ms!important;
   }
 }
+
+/* =========================================================
+   MODERN ACADEMIC PLATFORM — PHASE 2
+   Dashboard and navigation refinement.
+   Additive only: no HTML IDs, JS hooks, API calls, MathLive
+   or question-editor behavior are changed.
+   ========================================================= */
+
+/* App header: clearer hierarchy and better alignment */
+.topbar{
+  min-height:76px;
+  gap:18px;
+}
+.brand-title{
+  font-size:17px;
+  font-weight:800;
+}
+.brand-subtitle{
+  font-size:12px;
+  line-height:1.4;
+}
+.user-area{
+  gap:10px;
+}
+.user-area .btn{
+  min-height:42px;
+  padding:9px 16px;
+}
+
+/* Sidebar: more deliberate spacing and readable navigation */
+.sidebar{
+  position:sticky;
+  top:76px;
+  align-self:flex-start;
+  height:calc(100vh - 76px);
+  min-height:420px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(255,255,255,.22) transparent;
+}
+.sidebar::-webkit-scrollbar{
+  width:5px;
+}
+.sidebar::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,.2);
+  border-radius:20px;
+}
+.sidebar:before{
+  padding-top:5px;
+  padding-bottom:22px;
+}
+.nav-item{
+  min-height:48px;
+  font-size:14px;
+  letter-spacing:-.01em;
+}
+.nav-item:before{
+  flex:0 0 19px;
+  font-size:15px;
+}
+.nav-item.active{
+  font-weight:750;
+}
+.nav-item:focus-visible{
+  outline:2px solid #9bd6c7;
+  outline-offset:2px;
+}
+
+/* Main workspace */
+.content{
+  max-width:1540px;
+  padding:36px clamp(22px,2.5vw,42px) 58px;
+}
+.page-heading{
+  align-items:flex-end;
+  margin-bottom:26px;
+}
+.page-heading h2{
+  font-size:clamp(25px,2.1vw,31px);
+  letter-spacing:-.045em;
+  margin-bottom:7px;
+}
+.page-heading p{
+  max-width:680px;
+  font-size:15px;
+  line-height:1.65;
+}
+
+/* Subject overview: more balanced card hierarchy */
+.subject-grid{
+  gap:16px;
+  margin-bottom:26px;
+}
+.subject-card{
+  min-height:150px;
+  padding:21px 22px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:flex-start;
+}
+.subject-code{
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.025em;
+  padding:6px 9px;
+  border-radius:9px;
+  position:relative;
+  z-index:1;
+}
+.subject-name{
+  position:relative;
+  z-index:1;
+  margin-top:14px;
+  font-size:18px;
+  line-height:1.35;
+  font-weight:800;
+}
+.subject-card p,
+.subject-card .muted{
+  position:relative;
+  z-index:1;
+  margin-top:7px;
+  margin-bottom:0;
+  font-size:14px;
+  line-height:1.5;
+}
+
+/* Dashboard information panel */
+.card-title{
+  margin-bottom:17px;
+  font-size:18px;
+  font-weight:800;
+}
+.feature-grid{
+  gap:13px;
+}
+.feature-grid>div{
+  min-height:116px;
+  padding:18px 17px;
+  border-radius:15px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+}
+.feature-grid b{
+  font-size:14px;
+  line-height:1.45;
+  margin-bottom:7px;
+}
+.feature-grid p{
+  font-size:12.5px;
+  line-height:1.65;
+}
+
+/* Keep hover restrained: no distracting movement */
+.subject-card:hover{
+  transform:translateY(-2px);
+}
+.feature-grid>div:hover{
+  transform:translateY(-1px);
+}
+
+/* Other page headings and cards inherit the same rhythm */
+.card{
+  border-radius:17px;
+}
+.filter-row{
+  gap:12px;
+}
+.question-item{
+  border-radius:16px;
+}
+
+/* Tablet navigation */
+@media(max-width:850px){
+  .sidebar{
+    position:sticky;
+    top:70px;
+    height:calc(100vh - 70px);
+    min-height:360px;
+  }
+  .content{
+    padding:26px 20px 42px;
+  }
+  .page-heading{
+    align-items:flex-start;
+  }
+}
+
+/* Phone navigation and dashboard spacing */
+@media(max-width:650px){
+  .sidebar{
+    position:sticky;
+    top:64px;
+    z-index:6;
+    height:auto;
+    min-height:0;
+    align-self:stretch;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scrollbar-width:none;
+  }
+  .sidebar::-webkit-scrollbar{
+    display:none;
+  }
+  .content{
+    padding:22px 14px 36px;
+  }
+  .page-heading{
+    margin-bottom:19px;
+  }
+  .page-heading h2{
+    font-size:24px;
+  }
+  .page-heading p{
+    font-size:13px;
+  }
+  .subject-grid{
+    gap:11px;
+    margin-bottom:19px;
+  }
+  .subject-card{
+    min-height:120px;
+    padding:17px;
+  }
+  .subject-name{
+    font-size:16px;
+    margin-top:10px;
+  }
+  .subject-card p,
+  .subject-card .muted{
+    font-size:13px;
+  }
+  .feature-grid{
+    gap:10px;
+  }
+  .feature-grid>div{
+    min-height:0;
+    padding:15px;
+  }
+  .feature-grid b{
+    font-size:13px;
+  }
+  .feature-grid p{
+    font-size:12px;
+  }
+}
+
+/* Reduced-motion and accessibility refinements */
+@media(prefers-reduced-motion:reduce){
+  .subject-card,
+  .feature-grid>div,
+  .nav-item{
+    transition:none!important;
+  }
+  .subject-card:hover,
+  .feature-grid>div:hover{
+    transform:none!important;
+  }
+}
