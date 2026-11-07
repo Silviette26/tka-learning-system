@@ -677,8 +677,360 @@ function escapeHtml(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'
 function saveCategory(){const msg=catMessage;if(!catMapel.value||!catName.value.trim()){msg.textContent='Mapel dan nama kategori wajib diisi.';return;}msg.textContent='Menyimpan...';google.script.run.withSuccessHandler(()=>{msg.textContent='Kategori berhasil ditambahkan.';catName.value='';google.script.run.withSuccessHandler(d=>{APP.kategori=d.kategori||[];populateQuestionCategories();populateFilterCategories();renderCategoryList();}).getBootstrapData();}).withFailureHandler(e=>msg.textContent=e.message||'Gagal menambahkan kategori.').saveCategory({idMapel:catMapel.value,namaKategori:catName.value,idUser:APP.user.idUser});}
 function renderCategoryList(){const box=categoryList;if(!box)return;box.innerHTML=APP.mapel.map(m=>{const cats=APP.kategori.filter(k=>k.idMapel===m.idMapel);return `<div class="category-group"><b>${escapeHtml(m.namaMapel)}</b><div class="category-chips">${cats.map(c=>`<span class="tag">${escapeHtml(c.namaKategori)}</span>`).join('')||'<span class="muted">Belum ada kategori.</span>'}</div></div>`;}).join('');}
 function loadExams(){const box=document.getElementById('examList');if(!box)return;box.innerHTML='<div class="card">Memuat ujian...</div>';google.script.run.withSuccessHandler(rows=>{APP.exams=Array.isArray(rows)?rows:[];if(!APP.exams.length){box.innerHTML='<div class="card empty-state"><div class="empty-icon">📝</div><h3>Belum ada ujian</h3><p class="muted">Jika Anda baru saja membuat ujian, klik tombol Segarkan.</p><button class="btn btn-light" onclick="loadExams()">Segarkan</button></div>';return;}box.innerHTML=APP.exams.map(e=>`<div class="exam-card" onclick="openExam('${escapeHtml(e.idUjian)}')"><div><span class="tag">${escapeHtml(e.namaMapel)}</span><h3>${escapeHtml(e.namaUjian)}</h3><p class="muted">${e.jumlahSoal} soal · ${e.durasiMenit} menit · <b>${escapeHtml(e.status)}</b></p></div><span class="arrow">›</span></div>`).join('');}).withFailureHandler(e=>{box.innerHTML='<div class="card empty-state"><h3>Gagal memuat ujian</h3><p class="muted">'+escapeHtml(e.message||'Kesalahan server.')+'</p><button class="btn btn-light" onclick="loadExams()">Coba Lagi</button></div>';}).getExams();}
-function loadBuilderQuestions(){const id=examMapel.value,box=examQuestionList;if(!id){box.innerHTML='<p class="muted">Pilih mata pelajaran terlebih dahulu.</p>';return;}box.innerHTML='Memuat bank soal...';google.script.run.withSuccessHandler(rows=>{box.innerHTML=(rows||[]).map(q=>`<label class="question-picker"><input type="checkbox" value="${q.idSoal}" class="exam-q"><span><b>${typeName(q.tipe)}</b> · ${escapeHtml(q.tingkat)} · Bobot ${Number(q.bobot||0)}<br>${renderQuestion(q.pertanyaan)}</span></label>`).join('')||'<p class="muted">Belum ada soal.</p>';}).getExamQuestionsForBuilder(id);}
-function createExam(){const ids=[...document.querySelectorAll('.exam-q:checked')].map(x=>x.value),msg=document.getElementById('examMessage');if(!document.getElementById('examName').value||!document.getElementById('examMapel').value||!ids.length){msg.textContent='Nama, mapel, dan minimal satu soal wajib dipilih.';return;}msg.textContent='Membuat ujian...';const payload={namaUjian:document.getElementById('examName').value,idMapel:document.getElementById('examMapel').value,idGuru:APP.user?.idUser||'',durasiMenit:document.getElementById('examDuration').value,acakSoal:document.getElementById('examShuffle').checked,acakOpsi:document.getElementById('examShuffleOption').checked,soalIds:ids};google.script.run.withSuccessHandler(r=>{msg.textContent='Ujian dibuat sebagai DRAFT: '+r.idUjian;document.getElementById('examName').value='';openExam(r.idUjian);}).withFailureHandler(e=>msg.textContent=e.message||'Gagal membuat ujian.').createExam(payload);}
+
+/* =========================================================
+   PEMILIHAN SOAL UJIAN MULTI-KATEGORI
+   TKA LEARNING SYSTEM
+   ========================================================= */
+
+/*
+ * Dipanggil ketika mata pelajaran dipilih.
+ * Pilihan soal diinisialisasi ulang ketika mapel berubah.
+ */
+function loadBuilderQuestions() {
+  const mapelId = document.getElementById('examMapel').value;
+  const box = document.getElementById('examQuestionList');
+
+  if (!mapelId) {
+    APP.examBuilder = null;
+    box.innerHTML = '<p class="muted">Pilih mata pelajaran terlebih dahulu.</p>';
+    return;
+  }
+
+  APP.examBuilder = {
+    mapelId: mapelId,
+    kategoriId: '',
+    selected: {},
+    cache: {},
+    currentRows: [],
+    requestId: 0
+  };
+
+  const categories = APP.kategori.filter(
+    k => String(k.idMapel) === String(mapelId)
+  );
+
+  box.innerHTML = `
+    <div class="exam-builder">
+      <div class="exam-builder-toolbar">
+        <div class="exam-builder-filter">
+          <label for="examCategoryFilter">Filter kategori soal</label>
+          <select id="examCategoryFilter"
+                  onchange="loadBuilderCategory(this.value)">
+            <option value="">Semua kategori</option>
+            ${categories.map(k => `
+              <option value="${escapeHtml(k.idKategori)}">
+                ${escapeHtml(k.namaKategori)}
+              </option>
+            `).join('')}
+          </select>
+        </div>
+        <div class="exam-builder-hint">
+          Pilih soal, lalu pindah kategori untuk menambahkan soal lainnya.
+        </div>
+      </div>
+
+      <div id="examBuilderSummary" class="exam-builder-summary"></div>
+
+      <div id="examBuilderQuestionItems"
+           class="exam-builder-question-items">
+        <div class="exam-builder-loading">Memuat bank soal...</div>
+      </div>
+    </div>
+  `;
+
+  loadBuilderCategory('');
+}
+
+
+/*
+ * Memuat soal berdasarkan mata pelajaran dan kategori.
+ * Kategori kosong berarti semua kategori pada mapel tersebut.
+ */
+function loadBuilderCategory(kategoriId) {
+  const builder = APP.examBuilder;
+  if (!builder) return;
+
+  builder.kategoriId = kategoriId || '';
+  const requestId = ++builder.requestId;
+  const box = document.getElementById('examBuilderQuestionItems');
+
+  if (!box) return;
+
+  box.innerHTML = '<div class="exam-builder-loading">Memuat soal...</div>';
+
+  google.script.run
+    .withSuccessHandler(rows => {
+      if (
+        !APP.examBuilder ||
+        APP.examBuilder.requestId !== requestId
+      ) return;
+
+      const data = Array.isArray(rows) ? rows : [];
+
+      builder.currentRows = data;
+
+      data.forEach(q => {
+        builder.cache[String(q.idSoal)] = q;
+      });
+
+      renderBuilderQuestionItems(data);
+      renderExamBuilderSummary();
+      queueMathTypeset();
+    })
+    .withFailureHandler(e => {
+      if (
+        !APP.examBuilder ||
+        APP.examBuilder.requestId !== requestId
+      ) return;
+
+      box.innerHTML = `
+        <div class="exam-builder-empty">
+          <b>Gagal memuat soal</b>
+          <p>${escapeHtml(e.message || 'Terjadi kesalahan saat mengambil bank soal.')}</p>
+          <button class="btn btn-light"
+                  onclick="loadBuilderCategory(document.getElementById('examCategoryFilter').value)">
+            Coba lagi
+          </button>
+        </div>
+      `;
+    })
+    .getExamQuestionsForBuilder(builder.mapelId, builder.kategoriId);
+}
+
+
+/*
+ * Menampilkan daftar soal dari kategori yang sedang aktif.
+ * Checkbox tetap tercentang jika soal sebelumnya sudah dipilih.
+ */
+function renderBuilderQuestionItems(rows) {
+  const box = document.getElementById('examBuilderQuestionItems');
+  if (!box) return;
+
+  if (!rows.length) {
+    box.innerHTML = `
+      <div class="exam-builder-empty">
+        <div class="empty-icon">📚</div>
+        <b>Belum ada soal pada kategori ini</b>
+        <p class="muted">
+          Coba pilih kategori lain atau tambahkan soal ke Bank Soal.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  box.innerHTML = `
+    <div class="exam-builder-list-heading">
+      <b>Daftar soal tersedia</b>
+      <span>${rows.length} soal</span>
+    </div>
+
+    ${rows.map((q, index) => {
+      const id = String(q.idSoal);
+      const checked = !!APP.examBuilder.selected[id];
+      const category = APP.kategori.find(
+        k => String(k.idKategori) === String(q.idKategori)
+      );
+
+      return `
+        <label class="exam-question-option ${checked ? 'selected' : ''}">
+          <input
+            type="checkbox"
+            class="exam-q"
+            value="${escapeHtml(id)}"
+            ${checked ? 'checked' : ''}
+            onchange="toggleExamQuestion(this.value, this.checked)"
+          >
+
+          <span class="exam-question-content">
+            <span class="exam-question-meta">
+              <span class="tag">${escapeHtml(typeName(q.tipe))}</span>
+              <span class="tag">${escapeHtml(q.tingkat || 'Sedang')}</span>
+              <span class="tag">Bobot ${Number(q.bobot || 1)}</span>
+              <span class="tag category-tag">
+                ${escapeHtml(category?.namaKategori || 'Tanpa kategori')}
+              </span>
+            </span>
+
+            <span class="exam-question-text">
+              <b>Soal ${index + 1}</b>
+              ${renderQuestion(q.pertanyaan)}
+            </span>
+          </span>
+        </label>
+      `;
+    }).join('')}
+  `;
+}
+
+
+/*
+ * Menambah atau menghapus pilihan soal.
+ * Data soal disimpan dalam state APP agar tidak hilang
+ * saat guru berpindah kategori.
+ */
+function toggleExamQuestion(idSoal, checked) {
+  if (!APP.examBuilder) return;
+
+  const id = String(idSoal);
+
+  if (checked) {
+    const q = APP.examBuilder.cache[id];
+
+    if (q) {
+      APP.examBuilder.selected[id] = q;
+    }
+  } else {
+    delete APP.examBuilder.selected[id];
+  }
+
+  renderExamBuilderSummary();
+
+  const item = document.querySelector(
+    `.exam-question-option input.exam-q[value="${CSS.escape(id)}"]`
+  );
+
+  if (item) {
+    item.closest('.exam-question-option')
+      ?.classList.toggle('selected', checked);
+  }
+}
+
+
+/*
+ * Menghapus soal dari ringkasan pilihan.
+ * Bisa menghapus soal dari kategori mana pun.
+ */
+function removeExamQuestion(idSoal) {
+  if (!APP.examBuilder) return;
+
+  delete APP.examBuilder.selected[String(idSoal)];
+
+  renderBuilderQuestionItems(APP.examBuilder.currentRows);
+  renderExamBuilderSummary();
+}
+
+
+/*
+ * Ringkasan seluruh soal terpilih dari berbagai kategori.
+ */
+function renderExamBuilderSummary() {
+  const box = document.getElementById('examBuilderSummary');
+  if (!box || !APP.examBuilder) return;
+
+  const selected = Object.values(APP.examBuilder.selected);
+  const total = selected.length;
+
+  if (!total) {
+    box.innerHTML = `
+      <div class="exam-selection-empty">
+        <span>☑</span>
+        <div>
+          <b>Belum ada soal dipilih</b>
+          <small>Centang soal dari kategori yang ingin dimasukkan ke ujian.</small>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const grouped = {};
+
+  selected.forEach(q => {
+    const id = String(q.idKategori || 'tanpa-kategori');
+    if (!grouped[id]) grouped[id] = [];
+    grouped[id].push(q);
+  });
+
+  box.innerHTML = `
+    <div class="exam-selection-header">
+      <div>
+        <b>Soal terpilih</b>
+        <small>${Object.keys(grouped).length} kategori digunakan</small>
+      </div>
+      <div class="exam-selection-total">${total} <small>soal</small></div>
+    </div>
+
+    <div class="exam-selection-groups">
+      ${Object.entries(grouped).map(([categoryId, questions]) => {
+        const category = APP.kategori.find(
+          k => String(k.idKategori) === categoryId
+        );
+
+        return `
+          <div class="exam-selection-group">
+            <div class="exam-selection-category">
+              <b>${escapeHtml(category?.namaKategori || 'Tanpa kategori')}</b>
+              <span>${questions.length} soal</span>
+            </div>
+
+            ${questions.map(q => `
+              <div class="exam-selected-item">
+                <span>${escapeHtml(typeName(q.tipe))} · Bobot ${Number(q.bobot || 1)}</span>
+                <button type="button"
+                        title="Hapus soal dari ujian"
+                        onclick="removeExamQuestion('${escapeHtml(q.idSoal)}')">
+                  ×
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+
+/*
+ * Membuat ujian menggunakan seluruh soal terpilih,
+ * bukan hanya checkbox yang terlihat pada kategori aktif.
+ */
+function createExam() {
+  const builder = APP.examBuilder;
+  const ids = builder
+    ? Object.keys(builder.selected)
+    : [];
+
+  const msg = document.getElementById('examMessage');
+  const nama = document.getElementById('examName').value.trim();
+  const mapelId = document.getElementById('examMapel').value;
+
+  if (!nama || !mapelId || !ids.length) {
+    msg.textContent = 'Nama ujian, mata pelajaran, dan minimal satu soal wajib dipilih.';
+    return;
+  }
+
+  if (builder && String(builder.mapelId) !== String(mapelId)) {
+    msg.textContent = 'Mata pelajaran berubah. Silakan pilih kembali soal ujian.';
+    return;
+  }
+
+  msg.textContent = 'Membuat ujian...';
+
+  const payload = {
+    namaUjian: nama,
+    idMapel: mapelId,
+    idGuru: APP.user?.idUser || '',
+    durasiMenit: document.getElementById('examDuration').value,
+    acakSoal: document.getElementById('examShuffle').checked,
+    acakOpsi: document.getElementById('examShuffleOption').checked,
+    soalIds: ids
+  };
+
+  google.script.run
+    .withSuccessHandler(r => {
+      msg.textContent = 'Ujian berhasil dibuat sebagai DRAFT: ' + r.idUjian;
+      document.getElementById('examName').value = '';
+      openExam(r.idUjian);
+    })
+    .withFailureHandler(e => {
+      msg.textContent = e.message || 'Gagal membuat ujian.';
+    })
+    .createExam(payload);
+}
+
 function openExam(id){examListView.classList.add('hidden');examDetailView.classList.remove('hidden');examDetail.innerHTML='<div class="card">Memuat...</div>';google.script.run.withSuccessHandler(d=>examDetail.innerHTML=renderExamDetail(d)).withFailureHandler(e=>examDetail.innerHTML='<div class="card">'+escapeHtml(e.message)+'</div>').getExamDetail(id);}
 function backToExams(){examDetailView.classList.add('hidden');examListView.classList.remove('hidden');loadExams();}
 function setExamStatus(id,status){const detail=document.getElementById('examDetail');if(detail)detail.insertAdjacentHTML('afterbegin','<div class="message">Mengubah status ujian menjadi '+escapeHtml(status)+'...</div>');google.script.run.withSuccessHandler(()=>{loadExams();openExam(id);}).withFailureHandler(e=>alert(e.message||'Gagal mengubah status ujian.')).setExamStatus(id,status,APP.user.idUser);}
