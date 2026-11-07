@@ -1833,3 +1833,1127 @@ textarea:focus-visible{
     transition: none;
   }
 }
+
+
+/* =========================================================
+   TAHAP 3C — MODERNISASI BUAT SOAL
+   TKA LEARNING SYSTEM
+   Perbaikan toolbar pilihan, editor, upload gambar,
+   dan Equation Editor.
+   Tidak mengubah JavaScript / API / ID HTML.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   1. PANEL UTAMA BUAT SOAL
+--------------------------------------------------------- */
+
+#buatSoalView > .card {
+  padding: 25px;
+  background: #fff;
+  border: 1px solid #e1eae5;
+  border-radius: 17px;
+  box-shadow: 0 4px 18px rgba(22, 58, 46, .035);
+}
+
+#buatSoalView .page-heading {
+  margin-bottom: 22px;
+}
+
+#buatSoalView .page-heading h2 {
+  color: #203c33;
+}
+
+#buatSoalView h3 {
+  margin-top: 22px;
+  margin-bottom: 8px;
+  color: #294a3e;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+#buatSoalView .muted {
+  color: #7b8c84;
+  line-height: 1.6;
+}
+
+/* ---------------------------------------------------------
+   2. FORM INFORMASI SOAL
+--------------------------------------------------------- */
+
+#buatSoalView .form-grid {
+  gap: 17px;
+  margin-bottom: 19px;
+}
+
+#buatSoalView .form-group {
+  min-width: 0;
+}
+
+#buatSoalView .form-group > label {
+  display: block;
+  margin-bottom: 8px;
+  color: #3c594d;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+#buatSoalView .form-group input:not([type="checkbox"]):not([type="file"]),
+#buatSoalView .form-group select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 13px;
+  border: 1px solid #dce7e1;
+  border-radius: 10px;
+  background: #fff;
+  color: #2c4037;
+  font-size: 14px;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+#buatSoalView .form-group input:focus,
+#buatSoalView .form-group select:focus {
+  border-color: #26816d;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(38, 129, 109, .10);
+}
+
+/* ---------------------------------------------------------
+   3. EDITOR PERTANYAAN
+--------------------------------------------------------- */
+
+#buatSoalView .question-editor-shell {
+  position: relative;
+  overflow: visible;
+  border: 1px solid #dce8e1;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(20, 55, 45, .025);
+}
+
+#buatSoalView .question-editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 51px;
+  padding: 9px 13px;
+  background: #f5f9f7;
+  border-bottom: 1px solid #e6eee9;
+  border-radius: 14px 14px 0 0;
+}
+
+#buatSoalView .toolbar-hint {
+  min-width: 0;
+  color: #71847a;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+#buatSoalView .math-tool-wrap {
+  flex: 0 0 auto;
+  z-index: 50;
+}
+
+#buatSoalView .math-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 13px !important;
+  border: 1px solid #c9ded3 !important;
+  border-radius: 9px !important;
+  background: #fff !important;
+  color: #176b5d !important;
+  font-size: 12px;
+  font-weight: 800 !important;
+  box-shadow: none !important;
+}
+
+#buatSoalView .math-tool-btn:hover {
+  background: #edf7f2 !important;
+  border-color: #9fc9b5 !important;
+}
+
+#buatSoalView .question-visual-editor {
+  min-height: 190px;
+  padding: 19px;
+  color: #293c34;
+  font-size: 15px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+}
+
+#buatSoalView .question-visual-editor:focus {
+  box-shadow: inset 0 0 0 2px rgba(38, 129, 109, .08);
+}
+
+#buatSoalView .question-visual-editor:empty::before {
+  color: #a0aea6;
+}
+
+#buatSoalView .math-format-note {
+  padding: 10px 14px;
+  background: #f8fbf9;
+  border-top: 1px solid #eaf0ec;
+  color: #84948b;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+/* ---------------------------------------------------------
+   4. PALETTE MATEMATIKA PADA EDITOR PERTANYAAN
+--------------------------------------------------------- */
+
+#buatSoalView .math-palette {
+  z-index: 100;
+  width: min(370px, calc(100vw - 40px)) !important;
+  border: 1px solid #d9e7df !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+  box-shadow: 0 16px 42px rgba(20, 55, 43, .16) !important;
+}
+
+#buatSoalView .math-palette-grid button {
+  min-height: 54px !important;
+  border: 1px solid #e2ece6 !important;
+  border-radius: 9px !important;
+  background: #fff !important;
+  color: #315b4b !important;
+}
+
+#buatSoalView .math-palette-grid button:hover {
+  background: #edf7f1 !important;
+  border-color: #b8d9c8 !important;
+}
+
+/* ---------------------------------------------------------
+   5. KARTU GAMBAR PERTANYAAN
+--------------------------------------------------------- */
+
+#buatSoalView .question-image-card {
+  margin-top: 18px;
+  padding: 17px;
+  border: 1px solid #e0eae4;
+  border-radius: 14px;
+  background: #f9fbfa;
+}
+
+#buatSoalView .question-image-head {
+  margin-bottom: 14px;
+}
+
+#buatSoalView .question-image-head b {
+  color: #315447;
+  font-size: 14px;
+}
+
+#buatSoalView .optional-badge {
+  margin-left: 5px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  background: #eaf3ee;
+  color: #608171;
+  font-size: 10px;
+}
+
+#buatSoalView .question-image-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 225px;
+  gap: 12px;
+  align-items: stretch;
+}
+
+#buatSoalView .upload-dropzone {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  min-height: 68px;
+  padding: 13px 15px;
+  border: 1.5px dashed #b9d7c7;
+  border-radius: 12px;
+  background: #fff;
+  transition: background .2s ease, border-color .2s ease;
+}
+
+#buatSoalView .upload-dropzone:hover {
+  border-color: #68aa8b;
+  background: #f2faf5;
+}
+
+#buatSoalView .upload-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border-radius: 10px;
+  background: #e8f5ed;
+  color: #176b5d;
+  font-size: 23px;
+}
+
+#buatSoalView .upload-dropzone b {
+  display: block;
+  color: #315747;
+  font-size: 13px;
+}
+
+#buatSoalView .upload-dropzone small {
+  display: block;
+  margin-top: 4px;
+  color: #8b9b92;
+  font-size: 11px;
+}
+
+#buatSoalView .image-position-box {
+  padding: 11px;
+  border: 1px solid #e0e9e3;
+  border-radius: 11px;
+  background: #fff;
+}
+
+#buatSoalView .image-position-box label {
+  display: block;
+  margin-bottom: 7px;
+  color: #73867b;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+#buatSoalView .image-position-box select {
+  width: 100%;
+  min-height: 36px;
+  padding: 7px 9px;
+  border: 1px solid #dce7e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #385347;
+  font-size: 12px;
+}
+
+#buatSoalView .question-image-preview {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: 13px;
+  padding: 12px;
+  border: 1px solid #e1ebe4;
+  border-radius: 11px;
+  background: #fff;
+}
+
+#buatSoalView .question-image-preview img {
+  max-width: 240px;
+  max-height: 160px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+#buatSoalView #removeQuestionImageBtn {
+  margin-top: 10px;
+}
+
+/* ---------------------------------------------------------
+   6. PILIHAN JAWABAN — GRID DAN KARTU
+--------------------------------------------------------- */
+
+#buatSoalView .rich-option-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+#buatSoalView .rich-option-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #dce8e1;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(24, 58, 47, .025);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+#buatSoalView .rich-option-card:focus-within {
+  border-color: #a8cdb9;
+  box-shadow: 0 0 0 3px rgba(38, 129, 109, .06);
+}
+
+/* Header kartu: huruf A/B/C/D di kiri, tombol di kanan */
+#buatSoalView .rich-option-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  min-height: 58px;
+  padding: 10px 13px !important;
+  background: #f3f7f5 !important;
+  border-bottom: 1px solid #e2ebe5 !important;
+}
+
+#buatSoalView .rich-option-head > b {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 29px;
+  height: 29px;
+  flex: 0 0 29px;
+  border-radius: 8px;
+  background: #e3f1e9;
+  color: #176b5d;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* INI PERBAIKAN UTAMA: toolbar tombol */
+#buatSoalView .rich-option-tools {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  min-width: 0;
+  margin-left: auto;
+}
+
+/* Tombol Matematika */
+#buatSoalView .option-math-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: auto !important;
+  min-width: 112px !important;
+  min-height: 35px !important;
+  flex: 0 0 auto !important;
+  padding: 7px 11px !important;
+  border: 1px solid #cfe1d7 !important;
+  border-radius: 9px !important;
+  background: #fff !important;
+  color: #176b5d !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+
+#buatSoalView .option-math-btn:hover {
+  background: #edf7f1 !important;
+  border-color: #a9cdb8 !important;
+}
+
+/* Tombol upload gambar */
+#buatSoalView .option-image-btn {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: auto !important;
+  min-width: 91px !important;
+  min-height: 35px !important;
+  flex: 0 0 auto !important;
+  overflow: hidden !important;
+  padding: 7px 10px !important;
+  border: 1px solid #dce5df !important;
+  border-radius: 9px !important;
+  background: #fff !important;
+  color: #526c5e !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  cursor: pointer;
+}
+
+#buatSoalView .option-image-btn:hover {
+  background: #f0f7f2 !important;
+  border-color: #b9d6c5 !important;
+}
+
+/* Input file tetap tersembunyi, tetapi seluruh label bisa diklik */
+#buatSoalView .option-image-btn input[type="file"] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+}
+
+/* ---------------------------------------------------------
+   7. AREA MENGETIK PILIHAN JAWABAN
+--------------------------------------------------------- */
+
+#buatSoalView .rich-option-editor {
+  display: block;
+  min-width: 0;
+  min-height: 82px;
+  padding: 15px 16px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: #fff;
+  color: #293d34;
+  font-size: 14px;
+  line-height: 1.7;
+  outline: none;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+#buatSoalView .rich-option-editor:empty::before {
+  color: #a0aea6;
+}
+
+#buatSoalView .rich-option-editor:focus {
+  box-shadow: inset 0 0 0 2px rgba(38, 129, 109, .07);
+}
+
+#buatSoalView .rich-option-editor .inline-math-field {
+  display: inline-block !important;
+  max-width: 100% !important;
+  vertical-align: baseline !important;
+}
+
+/* ---------------------------------------------------------
+   8. POSISI GAMBAR DAN PREVIEW PILIHAN
+--------------------------------------------------------- */
+
+#buatSoalView .rich-option-bottom {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  min-height: 52px;
+  padding: 9px 12px !important;
+  border-top: 1px solid #e8efea !important;
+  background: #f9fbfa !important;
+}
+
+#buatSoalView .rich-option-bottom select {
+  width: auto;
+  max-width: 100%;
+  min-width: 180px;
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid #dce7e1;
+  border-radius: 9px;
+  background: #fff;
+  color: #4c6558;
+  font-size: 12px;
+}
+
+#buatSoalView .option-image-preview {
+  display: flex;
+  align-items: center;
+  flex: 1 1 150px;
+  min-width: 0;
+  gap: 10px;
+  padding: 5px;
+  color: #687b70;
+  font-size: 12px;
+}
+
+#buatSoalView .option-image-preview img {
+  width: auto;
+  max-width: 145px;
+  height: auto;
+  max-height: 90px;
+  object-fit: contain;
+  border: 1px solid #e1eae4;
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* ---------------------------------------------------------
+   9. KUNCI JAWABAN
+--------------------------------------------------------- */
+
+#buatSoalView #qAnswer {
+  width: 100%;
+  max-width: 300px;
+  min-height: 43px;
+  padding: 9px 12px;
+  border: 1px solid #dce7e1;
+  border-radius: 10px;
+  background: #fff;
+}
+
+/* ---------------------------------------------------------
+   10. PG KOMPLEKS DAN TABEL PERNYATAAN
+--------------------------------------------------------- */
+
+#buatSoalView #complexOptions,
+#buatSoalView #tableOptions {
+  margin-top: 20px;
+  padding-top: 5px;
+}
+
+#buatSoalView .complex-score-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+#buatSoalView .complex-meta {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #e2ebe5;
+  border-radius: 10px;
+  background: #f9fbfa;
+}
+
+#buatSoalView .check-answer {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #456052;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+#buatSoalView .score-help {
+  margin-top: 13px;
+  padding: 12px 14px;
+  border: 1px solid #e2eee6;
+  border-radius: 10px;
+  background: #f3f8f5;
+  color: #647a6c;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+#buatSoalView .table-wrap {
+  margin-top: 15px;
+  overflow-x: auto;
+  border: 1px solid #e2ebe5;
+  border-radius: 11px;
+}
+
+#buatSoalView .result-table {
+  min-width: 440px;
+  margin: 0;
+}
+
+#buatSoalView .result-table th {
+  background: #eff6f2;
+  color: #355b49;
+}
+
+/* ---------------------------------------------------------
+   11. TOMBOL SIMPAN DAN RESET
+--------------------------------------------------------- */
+
+#buatSoalView > .card > .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 17px;
+  border-top: 1px solid #e9efeb;
+}
+
+#buatSoalView #questionSaveBtn {
+  min-height: 44px;
+  padding: 11px 20px;
+  border-radius: 10px;
+  background: #176b5d;
+  border-color: #176b5d;
+  font-weight: 750;
+}
+
+#buatSoalView #questionSaveBtn:hover {
+  background: #105548;
+}
+
+#buatSoalView > .card > .actions .btn-light {
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 10px;
+}
+
+/* ---------------------------------------------------------
+   12. EQUATION EDITOR — MODAL UTAMA
+--------------------------------------------------------- */
+
+#equationEditorModal {
+  z-index: 99999;
+  padding: 20px;
+  background: rgba(13, 39, 32, .55);
+  backdrop-filter: blur(5px);
+}
+
+#equationEditorModal .eq-dialog {
+  width: min(900px, 100%);
+  max-height: min(92vh, 900px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid #dce9e1;
+  border-radius: 19px;
+  background: #fff;
+  color: #263d33;
+  box-shadow: 0 25px 80px rgba(12, 43, 32, .24);
+}
+
+#equationEditorModal .eq-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 19px 23px;
+  border-bottom: 1px solid #e8efea;
+  background: #fbfdfb;
+}
+
+#equationEditorModal .eq-mark {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  flex: 0 0 43px;
+  border-radius: 12px;
+  background: #e7f3ec;
+  color: #176b5d;
+  font-size: 19px;
+}
+
+#equationEditorModal .eq-head h3 {
+  margin: 0;
+  color: #244b3b;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+#equationEditorModal .eq-head p {
+  margin: 4px 0 0;
+  color: #819087;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+#equationEditorModal .eq-close {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: #f0f5f2;
+  color: #61776a;
+  font-size: 22px;
+}
+
+#equationEditorModal .eq-close:hover {
+  background: #e4efe8;
+  color: #176b5d;
+}
+
+#equationEditorModal .eq-body {
+  padding: 20px 23px;
+}
+
+#equationEditorModal .eq-label {
+  margin-bottom: 9px;
+  color: #71847a;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+
+#equationEditorModal .eq-preview {
+  display: flex;
+  align-items: center;
+  min-height: 115px;
+  padding: 15px 18px;
+  border: 1.5px solid #dce9e1;
+  border-radius: 13px;
+  background: #fbfdfb;
+}
+
+#equationEditorModal .eq-preview:focus-within {
+  border-color: #80b99c;
+  box-shadow: 0 0 0 3px rgba(38, 129, 109, .09);
+}
+
+#equationEditorModal .eq-preview math-field {
+  width: 100%;
+  min-height: 75px;
+  border: 0;
+  background: transparent;
+  color: #213d31;
+  font-size: 27px;
+  --caret-color: #176b5d;
+  --selection-background-color: #d8eee1;
+  --contains-highlight-background-color: #edf7f0;
+}
+
+#equationEditorModal .eq-modebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 17px 0 11px;
+}
+
+#equationEditorModal .eq-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: #eff5f1;
+}
+
+#equationEditorModal .eq-tab {
+  min-height: 34px;
+  padding: 7px 15px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #6e8176;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+#equationEditorModal .eq-tab.active {
+  background: #fff;
+  color: #176b5d;
+  box-shadow: 0 1px 5px rgba(20, 55, 43, .09);
+}
+
+#equationEditorModal .eq-note {
+  color: #8a9a90;
+  font-size: 11px;
+}
+
+#equationEditorModal .eq-panel {
+  padding: 15px;
+  border: 1px solid #e2ebe5;
+  border-radius: 13px;
+  background: #f9fbfa;
+}
+
+#equationEditorModal .eq-group-title {
+  margin: 2px 0 10px;
+  color: #7d9084;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+#equationEditorModal .eq-symbol-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+#equationEditorModal .eq-symbol {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 43px;
+  border: 1px solid #e0eae3;
+  border-radius: 9px;
+  background: #fff;
+  color: #315b48;
+  font-size: 17px;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+
+#equationEditorModal .eq-symbol:hover {
+  border-color: #a9cdb8;
+  background: #edf7f1;
+  color: #176b5d;
+}
+
+#equationEditorModal .eq-latex {
+  width: 100%;
+  min-height: 145px;
+  padding: 13px;
+  border: 1px solid #dce8e0;
+  border-radius: 10px;
+  background: #fff;
+  color: #294538;
+  font: 13px/1.65 ui-monospace, Consolas, monospace;
+}
+
+#equationEditorModal .eq-latex:focus {
+  border-color: #80b99c;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(38, 129, 109, .08);
+}
+
+#equationEditorModal .eq-help {
+  margin-top: 11px;
+  color: #819087;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+#equationEditorModal .eq-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 23px;
+  border-top: 1px solid #e8efea;
+  background: #fbfdfb;
+}
+
+#equationEditorModal .eq-foot small {
+  color: #819087;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+#equationEditorModal .eq-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#equationEditorModal .eq-btn {
+  min-height: 39px;
+  padding: 9px 15px;
+  border: 1px solid #dce7e0;
+  border-radius: 9px;
+  background: #fff;
+  color: #587064;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+#equationEditorModal .eq-btn.primary {
+  border-color: #176b5d;
+  background: #176b5d;
+  color: #fff;
+}
+
+#equationEditorModal .eq-btn.primary:hover {
+  background: #105548;
+}
+
+/* ---------------------------------------------------------
+   13. RESPONSIVE TABLET
+--------------------------------------------------------- */
+
+@media (max-width: 850px) {
+  #buatSoalView > .card {
+    padding: 20px;
+  }
+
+  #buatSoalView .rich-option-grid {
+    gap: 12px;
+  }
+
+  #buatSoalView .rich-option-head {
+    gap: 8px !important;
+    padding: 9px 10px !important;
+  }
+
+  #buatSoalView .option-math-btn {
+    min-width: 105px !important;
+  }
+
+  #buatSoalView .option-image-btn {
+    min-width: 82px !important;
+  }
+}
+
+/* ---------------------------------------------------------
+   14. RESPONSIVE HP
+--------------------------------------------------------- */
+
+@media (max-width: 650px) {
+  #buatSoalView > .card {
+    padding: 15px;
+    border-radius: 13px;
+  }
+
+  #buatSoalView .form-grid {
+    grid-template-columns: 1fr;
+    gap: 13px;
+  }
+
+  #buatSoalView .question-editor-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  #buatSoalView .toolbar-hint {
+    width: 100%;
+  }
+
+  #buatSoalView .math-tool-wrap {
+    align-self: flex-end;
+  }
+
+  #buatSoalView .question-visual-editor {
+    min-height: 155px;
+    padding: 14px;
+    font-size: 14px;
+  }
+
+  #buatSoalView .question-image-card {
+    padding: 13px;
+  }
+
+  #buatSoalView .question-image-controls {
+    grid-template-columns: 1fr;
+  }
+
+  #buatSoalView .rich-option-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  #buatSoalView .rich-option-head {
+    flex-wrap: nowrap !important;
+    min-height: 55px;
+    padding: 9px 11px !important;
+  }
+
+  #buatSoalView .rich-option-tools {
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+  }
+
+  #buatSoalView .option-math-btn {
+    min-width: 108px !important;
+    min-height: 34px !important;
+    padding: 7px 9px !important;
+    font-size: 11px !important;
+  }
+
+  #buatSoalView .option-image-btn {
+    min-width: 83px !important;
+    min-height: 34px !important;
+    padding: 7px 8px !important;
+    font-size: 11px !important;
+  }
+
+  #buatSoalView .rich-option-editor {
+    min-height: 75px;
+    padding: 13px;
+    font-size: 14px;
+  }
+
+  #buatSoalView .rich-option-bottom {
+    align-items: stretch !important;
+    flex-direction: column;
+  }
+
+  #buatSoalView .rich-option-bottom select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #buatSoalView .complex-score-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #buatSoalView > .card > .actions {
+    flex-direction: column;
+  }
+
+  #buatSoalView > .card > .actions .btn {
+    width: 100%;
+  }
+
+  #equationEditorModal {
+    padding: 8px;
+  }
+
+  #equationEditorModal .eq-dialog {
+    max-height: 96dvh;
+    border-radius: 15px;
+  }
+
+  #equationEditorModal .eq-head,
+  #equationEditorModal .eq-body {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  #equationEditorModal .eq-preview {
+    min-height: 95px;
+    padding: 11px;
+  }
+
+  #equationEditorModal .eq-preview math-field {
+    min-height: 65px;
+    font-size: 22px;
+  }
+
+  #equationEditorModal .eq-symbol-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  #equationEditorModal .eq-foot {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 13px 14px;
+  }
+
+  #equationEditorModal .eq-actions {
+    justify-content: flex-end;
+  }
+
+  #equationEditorModal .eq-note {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------
+   15. LAYAR SANGAT KECIL
+--------------------------------------------------------- */
+
+@media (max-width: 380px) {
+  #buatSoalView .rich-option-head {
+    gap: 5px !important;
+    padding: 8px !important;
+  }
+
+  #buatSoalView .option-math-btn {
+    min-width: 98px !important;
+    font-size: 10px !important;
+  }
+
+  #buatSoalView .option-image-btn {
+    min-width: 76px !important;
+    font-size: 10px !important;
+  }
+
+  #buatSoalView .complex-score-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #equationEditorModal .eq-head h3 {
+    font-size: 16px;
+  }
+}
+
+/* ---------------------------------------------------------
+   16. AKSESIBILITAS
+--------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  #buatSoalView *,
+  #equationEditorModal * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
