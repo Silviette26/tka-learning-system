@@ -3795,3 +3795,59 @@ textarea:focus-visible{
   color: #2563eb;
   font-weight: 600;
 }
+
+/* =====================================
+   PERBAIKAN KONTRAS TEKS SIDEBAR
+===================================== */
+
+#teacherSidebar .sidebar-nav .nav-item,
+#teacherSidebar .nav-group-toggle {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+#teacherSidebar .sidebar-nav .nav-item span,
+#teacherSidebar .nav-group-toggle span {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+/* Efek hover */
+#teacherSidebar .sidebar-nav .nav-item:hover,
+#teacherSidebar .nav-group-toggle:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* Menu aktif */
+#teacherSidebar .sidebar-nav .nav-item.active,
+#teacherSidebar .nav-group-toggle.is-active {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.22);
+  font-weight: 700;
+}
+
+/* Ikon */
+#teacherSidebar .nav-icon {
+  color: #ffffff !important;
+}
+
+/* Submenu */
+#teacherSidebar .nav-submenu {
+  border-left-color: rgba(255, 255, 255, 0.4);
+}
+
+#teacherSidebar .nav-sub-item {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+#teacherSidebar .nav-sub-item.active {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.2);
+  font-weight: 700;
+}
+
+/* Panah submenu */
+#teacherSidebar .nav-chevron {
+  color: #ffffff !important;
+}
