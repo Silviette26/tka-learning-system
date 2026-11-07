@@ -30,7 +30,18 @@
 </style></head><body>
 <div id="app">
 <section id="loginPage" class="page-center"><div class="login-card"><div class="brand-mark">TKA</div><h1>TKA Learning System</h1><p class="muted">SMP Negeri 14 Tanjungpinang</p><div class="form-group"><label>Username</label><input id="username" placeholder="Masukkan username"></div><div class="form-group"><label>Password</label><input id="password" type="password" placeholder="Masukkan password"></div><button class="btn btn-primary btn-full" onclick="doLogin()">Masuk</button><div id="loginMessage" class="message"></div><div class="demo-note">Guru: <b>guru / guru123</b> · Siswa demo: <b>siswa1 / siswa123</b></div></div></section>
-<section id="mainPage" class="hidden"><header class="topbar"><div><div class="brand-title">TKA Learning System</div><div class="brand-subtitle">SMP Negeri 14 Tanjungpinang</div></div><div class="user-area"><span id="userName"></span><span id="userRole" class="role-pill"></span><button class="btn btn-light" onclick="logout()">Keluar</button></div></header>
+<section id="mainPage" class="hidden"><header class="topbar">
+<button type="button" class="mobile-menu-toggle"
+  onclick="toggleMobileSidebar()" aria-label="Buka menu" aria-expanded="false">
+  ☰
+</button>
+<div>
+  <div class="brand-title">TKA Learning System</div>
+  <div class="brand-subtitle">SMP Negeri 14 Tanjungpinang</div></div><div class="user-area"><span id="userName"></span><span id="userRole" class="role-pill"></span><button class="btn btn-light" onclick="logout()">Keluar</button></div></header>
+<div id="mobileSidebarOverlay"
+     class="mobile-sidebar-overlay"
+     onclick="closeMobileSidebar()"></div>
+
 <div class="layout"><aside class="sidebar" id="teacherSidebar"><div class="sidebar-nav">
 
   <button class="nav-item" onclick="showView('dashboard',this)">
@@ -167,4 +178,63 @@
 </div>
 
 <script src="./js/TKA_API_Bridge.js"></script>
-<script src="./js/app.js"></script></body></html>
+<script src="./js/app.js"></script>
+
+<script>
+/* =========================================
+   MOBILE OFF-CANVAS SIDEBAR CONTROLLER
+========================================= */
+
+function toggleMobileSidebar() {
+  if (document.body.classList.contains('mobile-sidebar-open')) {
+    closeMobileSidebar();
+  } else {
+    openMobileSidebar();
+  }
+}
+
+function openMobileSidebar() {
+  if (window.innerWidth > 720) return;
+
+  document.body.classList.add('mobile-sidebar-open');
+
+  const button = document.querySelector('.mobile-menu-toggle');
+  if (button) button.setAttribute('aria-expanded', 'true');
+}
+
+function closeMobileSidebar() {
+  document.body.classList.remove('mobile-sidebar-open');
+
+  const button = document.querySelector('.mobile-menu-toggle');
+  if (button) button.setAttribute('aria-expanded', 'false');
+}
+
+/* Tutup otomatis setelah memilih menu */
+document.addEventListener('click', function(event) {
+  const menuItem = event.target.closest(
+    '#teacherSidebar .nav-item, #studentSidebar .nav-item'
+  );
+
+  if (menuItem) {
+    closeMobileSidebar();
+  }
+});
+
+/* Tutup dengan tombol Escape */
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    closeMobileSidebar();
+  }
+});
+
+/* Reset ketika kembali ke layar desktop */
+window.addEventListener('resize', function() {
+  if (window.innerWidth > 720) {
+    closeMobileSidebar();
+  }
+});
+</script>
+</body>
+</html>
+
+
