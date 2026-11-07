@@ -4599,3 +4599,160 @@ textarea:focus-visible{
     font-size: 10px;
   }
 }
+
+
+/* =========================================
+   MOBILE OFF-CANVAS SIDEBAR
+   Desktop tetap menggunakan sidebar lama
+========================================= */
+
+/* Tombol menu: hanya aktif pada HP */
+.mobile-menu-toggle {
+  display: none;
+}
+
+.mobile-sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 720px) {
+
+  /* Header aplikasi */
+  .topbar {
+    position: relative;
+    z-index: 1002;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mobile-menu-toggle {
+    display: inline-flex;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dce9df;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #176b43;
+    font-size: 21px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 7px rgba(20, 60, 40, .06);
+  }
+
+  .mobile-menu-toggle:active {
+    transform: scale(.95);
+  }
+
+  .topbar > div:first-of-type {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .topbar .brand-title {
+    font-size: 14px;
+  }
+
+  .topbar .brand-subtitle {
+    font-size: 10px;
+  }
+
+  .topbar .user-area {
+    gap: 6px;
+  }
+
+  /* Layout konten menjadi penuh */
+  .layout {
+    display: block;
+    width: 100%;
+  }
+
+  .content {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+  }
+
+  /* Sidebar guru dan siswa */
+  #teacherSidebar,
+  #studentSidebar {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1004;
+    display: block;
+    width: min(285px, 82vw);
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-top: 20px;
+    padding-bottom: 30px;
+    background: #ffffff;
+    box-shadow: 12px 0 35px rgba(15, 35, 25, .16);
+    transform: translateX(-110%);
+    transition: transform .28s ease;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Sidebar hanya terlihat saat dibuka */
+  #teacherSidebar.hidden,
+  #studentSidebar.hidden {
+    display: none !important;
+  }
+
+  body.mobile-sidebar-open #teacherSidebar:not(.hidden),
+  body.mobile-sidebar-open #studentSidebar:not(.hidden) {
+    transform: translateX(0);
+  }
+
+  /* Area gelap di luar sidebar */
+  .mobile-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1003;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    background: rgba(15, 30, 23, .48);
+    backdrop-filter: blur(2px);
+    transition: opacity .25s ease, visibility .25s ease;
+  }
+
+  body.mobile-sidebar-open .mobile-sidebar-overlay {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* Menu navigasi */
+  #teacherSidebar .sidebar-nav,
+  #studentSidebar {
+    width: 100%;
+  }
+
+  #teacherSidebar .nav-item,
+  #teacherSidebar .nav-group-toggle,
+  #studentSidebar .nav-item {
+    width: 100%;
+  }
+
+  /* Area utama tidak ikut bergeser */
+  body.mobile-sidebar-open {
+    overflow: hidden;
+    touch-action: pan-y;
+  }
+}
+
+/* Menghormati preferensi gerakan minimal */
+@media (max-width: 720px) and (prefers-reduced-motion: reduce) {
+  #teacherSidebar,
+  #studentSidebar,
+  .mobile-sidebar-overlay {
+    transition: none;
+  }
+}
