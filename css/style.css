@@ -4756,3 +4756,31 @@ textarea:focus-visible{
     transition: none;
   }
 }
+
+/* PERBAIKAN WARNA SIDEBAR MOBILE */
+@media (max-width: 720px) {
+  .sidebar:not(.hidden) {
+    background: #14532d !important;
+    color: #ffffff !important;
+  }
+
+  .sidebar .nav-item,
+  .sidebar .nav-group-toggle,
+  .sidebar a,
+  .sidebar button {
+    color: #ffffff !important;
+  }
+
+  .sidebar .nav-item svg,
+  .sidebar .nav-group-toggle svg,
+  .sidebar .nav-item i {
+    color: #ffffff !important;
+    fill: currentColor;
+  }
+
+  .sidebar .nav-item:hover,
+  .sidebar .nav-group-toggle:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+  }
+}
