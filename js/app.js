@@ -1,8 +1,196 @@
 
 let APP={user:null,mapel:[],kategori:[],guru:[],bank:[],exams:[],studentExams:[],attempt:null,timer:null,currentIndex:0,answers:{},imageBaseUrl:''};
-document.addEventListener('DOMContentLoaded',()=>{google.script.run.withSuccessHandler(d=>{APP.mapel=d.mapel||[];APP.kategori=d.kategori||[];APP.guru=d.guru||[];APP.imageBaseUrl=d.imageBaseUrl||'';renderSubjects();populateMapelSelects();populatePercentOptions();renderQuestionTypeFields();initQuestionEditor();}).getBootstrapData();const t=document.getElementById('qType');if(t)t.addEventListener('change',renderQuestionTypeFields);});
-function doLogin(){const msg=document.getElementById('loginMessage');msg.textContent='Memeriksa...';google.script.run.withSuccessHandler(r=>{if(!r.ok){msg.textContent=r.message;return;}APP.user=r.user;document.getElementById('loginPage').classList.add('hidden');document.getElementById('mainPage').classList.remove('hidden');document.getElementById('userName').textContent=r.user.nama;document.getElementById('userRole').textContent=r.user.role;if(r.user.role==='SISWA'){document.getElementById('teacherSidebar').classList.add('hidden');document.getElementById('studentSidebar').classList.remove('hidden');document.getElementById('studentHomeName').textContent=r.user.nama;showView('studentHome');loadStudentExams();}else{document.getElementById('teacherSidebar').classList.remove('hidden');document.getElementById('studentSidebar').classList.add('hidden');showView('dashboard');}}).login(document.getElementById('username').value,document.getElementById('password').value);}
-function logout(){if(APP.timer)clearInterval(APP.timer);APP={user:null,mapel:[],kategori:[],guru:[],bank:[],exams:[],studentExams:[],attempt:null,timer:null,currentIndex:0,answers:{},imageBaseUrl:''};document.getElementById('mainPage').classList.add('hidden');document.getElementById('loginPage').classList.remove('hidden');document.getElementById('password').value='';}
+// =====================================
+// SESSION PERSISTENCE
+// =====================================
+
+const TKA_SESSION_KEY = 'TKA_LOGIN_SESSION';
+const TKA_VIEW_KEY = 'TKA_LAST_VIEW';
+
+function saveLoginSession(user) {
+  try {
+    localStorage.setItem(TKA_SESSION_KEY, JSON.stringify({
+      user: user,
+      savedAt: Date.now()
+    }));
+  } catch (e) {
+    console.error('Gagal menyimpan sesi:', e);
+  }
+}
+
+function getLoginSession() {
+  try {
+    const raw = localStorage.getItem(TKA_SESSION_KEY);
+    if (!raw) return null;
+
+    const session = JSON.parse(raw);
+
+    // Masa sesi browser: 12 jam
+    const maxAge = 12 * 60 * 60 * 1000;
+
+    if (!session.user || !session.savedAt ||
+        Date.now() - session.savedAt > maxAge) {
+      clearLoginSession();
+      return null;
+    }
+
+    return session.user;
+  } catch (e) {
+    clearLoginSession();
+    return null;
+  }
+}
+
+function clearLoginSession() {
+  localStorage.removeItem(TKA_SESSION_KEY);
+  localStorage.removeItem(TKA_VIEW_KEY);
+}
+
+function restoreLoginSession() {
+  const user = getLoginSession();
+
+  if (!user) return;
+
+  APP.user = user;
+
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('mainPage').classList.remove('hidden');
+
+  document.getElementById('userName').textContent = user.nama;
+  document.getElementById('userRole').textContent = user.role;
+
+  let lastView = localStorage.getItem(TKA_VIEW_KEY);
+
+  if (user.role === 'SISWA') {
+    document.getElementById('teacherSidebar').classList.add('hidden');
+    document.getElementById('studentSidebar').classList.remove('hidden');
+
+    document.getElementById('studentHomeName').textContent = user.nama;
+
+    // Jika sebelumnya sedang mengerjakan ujian,
+    // arahkan ke daftar ujian agar bisa melanjutkan.
+    if (lastView === 'studentWork' || lastView === 'studentResult') {
+      lastView = 'studentExams';
+    }
+
+    if (!['studentHome', 'studentExams'].includes(lastView)) {
+      lastView = 'studentHome';
+    }
+  } else {
+    document.getElementById('teacherSidebar').classList.remove('hidden');
+    document.getElementById('studentSidebar').classList.add('hidden');
+
+    if (!['dashboard', 'bankSoal', 'kategori', 'buatSoal', 'ujian', 'analisisTes'].includes(lastView)) {
+      lastView = 'dashboard';
+    }
+  }
+
+  showView(lastView);
+}
+document.addEventListener('DOMContentLoaded', () => {
+
+  google.script.run
+    .withSuccessHandler(d => {
+      APP.mapel = d.mapel || [];
+      APP.kategori = d.kategori || [];
+      APP.guru = d.guru || [];
+      APP.imageBaseUrl = d.imageBaseUrl || '';
+
+      renderSubjects();
+      populateMapelSelects();
+      populatePercentOptions();
+      renderQuestionTypeFields();
+      initQuestionEditor();
+    })
+    .getBootstrapData();
+
+  const t = document.getElementById('qType');
+  if (t) {
+    t.addEventListener('change', renderQuestionTypeFields);
+  }
+
+  // Pulihkan sesi setelah halaman dimuat
+  restoreLoginSession();
+
+});
+function doLogin() {
+  const msg = document.getElementById('loginMessage');
+  msg.textContent = 'Memeriksa...';
+
+  google.script.run
+    .withSuccessHandler(r => {
+
+      if (!r.ok) {
+        msg.textContent = r.message;
+        return;
+      }
+
+      APP.user = r.user;
+
+      // Simpan sesi tanpa menyimpan password
+      saveLoginSession(r.user);
+
+      if (r.user.role === 'SISWA') {
+        localStorage.setItem(TKA_VIEW_KEY, 'studentHome');
+      } else {
+        localStorage.setItem(TKA_VIEW_KEY, 'dashboard');
+      }
+
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('mainPage').classList.remove('hidden');
+
+      document.getElementById('userName').textContent = r.user.nama;
+      document.getElementById('userRole').textContent = r.user.role;
+
+      if (r.user.role === 'SISWA') {
+        document.getElementById('teacherSidebar').classList.add('hidden');
+        document.getElementById('studentSidebar').classList.remove('hidden');
+
+        document.getElementById('studentHomeName').textContent = r.user.nama;
+
+        showView('studentHome');
+      } else {
+        document.getElementById('teacherSidebar').classList.remove('hidden');
+        document.getElementById('studentSidebar').classList.add('hidden');
+
+        showView('dashboard');
+      }
+
+    })
+    .withFailureHandler(e => {
+      msg.textContent = e.message || 'Terjadi kesalahan saat login.';
+    })
+    .login(
+      document.getElementById('username').value,
+      document.getElementById('password').value
+    );
+}
+function logout() {
+  if (APP.timer) clearInterval(APP.timer);
+
+  // Hapus sesi tersimpan
+  clearLoginSession();
+
+  APP = {
+    user: null,
+    mapel: [],
+    kategori: [],
+    guru: [],
+    bank: [],
+    exams: [],
+    studentExams: [],
+    attempt: null,
+    timer: null,
+    currentIndex: 0,
+    answers: {},
+    imageBaseUrl: ''
+  };
+
+  document.getElementById('mainPage').classList.add('hidden');
+  document.getElementById('loginPage').classList.remove('hidden');
+
+  document.getElementById('password').value = '';
+}
 function toggleNavGroup(button) {
   const group = button.closest('.nav-group');
   if (!group) return;
@@ -12,6 +200,9 @@ function toggleNavGroup(button) {
 }
 
 function showView(name, button) {
+  if (APP.user) {
+  localStorage.setItem(TKA_VIEW_KEY, name);
+}
   document.querySelectorAll('.view').forEach(v => {
     v.classList.add('hidden');
   });
