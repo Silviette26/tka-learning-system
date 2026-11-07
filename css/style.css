@@ -4367,3 +4367,235 @@ textarea:focus-visible{
     max-width: 145px;
   }
 }
+
+
+/* =========================================
+   ANALISIS TES — TAHAP 3
+   GRAFIK NILAI & ANALISIS PER SOAL
+========================================= */
+
+/* Kartu grafik */
+.analysis-chart-card {
+  padding: 22px;
+  margin-bottom: 20px;
+  border: 1px solid #e5eee8;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 18px rgba(25, 55, 40, .045);
+}
+
+.analysis-chart-card .analysis-section-heading {
+  padding-bottom: 15px;
+  border-bottom: 1px solid #edf1ee;
+}
+
+/* =========================================
+   A. GRAFIK NILAI PESERTA DIDIK
+========================================= */
+
+.analysis-student-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 8px 2px;
+}
+
+.analysis-bar-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 190px) minmax(80px, 1fr) 65px;
+  align-items: center;
+  gap: 13px;
+}
+
+.analysis-bar-label {
+  overflow: hidden;
+  color: #40564a;
+  font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.analysis-bar-track {
+  position: relative;
+  overflow: hidden;
+  height: 13px;
+  border-radius: 20px;
+  background: #edf3ef;
+}
+
+.analysis-bar-fill {
+  height: 100%;
+  min-width: 0;
+  border-radius: 20px;
+  transition: width .5s ease;
+}
+
+.student-score-fill {
+  background: linear-gradient(90deg, #35a66e, #167447);
+  box-shadow: 0 1px 4px rgba(22, 116, 71, .15);
+}
+
+.analysis-bar-value {
+  color: #176b43;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================
+   B. GRAFIK DISTRIBUSI PER SOAL
+========================================= */
+
+.analysis-question-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.analysis-question-chart-item {
+  padding: 15px;
+  border: 1px solid #edf1ee;
+  border-radius: 12px;
+  background: #fcfdfc;
+  transition: border-color .2s ease,
+              background .2s ease;
+}
+
+.analysis-question-chart-item:hover {
+  border-color: #c9dfd0;
+  background: #f8fbf9;
+}
+
+.analysis-question-chart-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 11px;
+}
+
+.analysis-question-chart-title b {
+  color: #30483a;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.analysis-question-chart-title small {
+  color: #829087;
+  font-size: 11px;
+}
+
+/* Batang distribusi bertumpuk */
+.analysis-stacked-bar {
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  height: 17px;
+  border-radius: 20px;
+  background: #edf1ee;
+}
+
+.analysis-stacked-bar span {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  transition: width .4s ease;
+}
+
+.analysis-stacked-bar .stack-benar {
+  background: #28a66a;
+}
+
+.analysis-stacked-bar .stack-salah {
+  background: #e35d62;
+}
+
+.analysis-stacked-bar .stack-parsial {
+  background: #e8ae36;
+}
+
+.analysis-stacked-bar .stack-kosong {
+  background: #aab5ae;
+}
+
+/* Rincian persentase */
+.analysis-question-chart-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 11px;
+}
+
+.analysis-question-chart-detail span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #68776e;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.analysis-question-chart-detail span:nth-child(1) {
+  color: #167447;
+}
+
+.analysis-question-chart-detail span:nth-child(2) {
+  color: #bd3e47;
+}
+
+.analysis-question-chart-detail span:nth-child(3) {
+  color: #98650c;
+}
+
+.analysis-question-chart-detail span:nth-child(4) {
+  color: #68766e;
+}
+
+/* =========================================
+   C. RESPONSIVE
+========================================= */
+
+@media (max-width: 700px) {
+  .analysis-chart-card {
+    padding: 15px;
+  }
+
+  .analysis-bar-row {
+    grid-template-columns: minmax(85px, 115px) minmax(50px, 1fr) 53px;
+    gap: 8px;
+  }
+
+  .analysis-bar-label {
+    font-size: 11px;
+  }
+
+  .analysis-bar-value {
+    font-size: 11px;
+  }
+
+  .analysis-bar-track {
+    height: 11px;
+  }
+
+  .analysis-question-chart-item {
+    padding: 12px;
+  }
+
+  .analysis-question-chart-detail {
+    gap: 8px 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .analysis-bar-row {
+    grid-template-columns: 90px minmax(40px, 1fr) 48px;
+    gap: 7px;
+  }
+
+  .analysis-question-chart-detail span {
+    font-size: 10px;
+  }
+}
