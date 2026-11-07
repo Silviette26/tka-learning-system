@@ -3,7 +3,54 @@ let APP={user:null,mapel:[],kategori:[],guru:[],bank:[],exams:[],studentExams:[]
 document.addEventListener('DOMContentLoaded',()=>{google.script.run.withSuccessHandler(d=>{APP.mapel=d.mapel||[];APP.kategori=d.kategori||[];APP.guru=d.guru||[];APP.imageBaseUrl=d.imageBaseUrl||'';renderSubjects();populateMapelSelects();populatePercentOptions();renderQuestionTypeFields();initQuestionEditor();}).getBootstrapData();const t=document.getElementById('qType');if(t)t.addEventListener('change',renderQuestionTypeFields);});
 function doLogin(){const msg=document.getElementById('loginMessage');msg.textContent='Memeriksa...';google.script.run.withSuccessHandler(r=>{if(!r.ok){msg.textContent=r.message;return;}APP.user=r.user;document.getElementById('loginPage').classList.add('hidden');document.getElementById('mainPage').classList.remove('hidden');document.getElementById('userName').textContent=r.user.nama;document.getElementById('userRole').textContent=r.user.role;if(r.user.role==='SISWA'){document.getElementById('teacherSidebar').classList.add('hidden');document.getElementById('studentSidebar').classList.remove('hidden');document.getElementById('studentHomeName').textContent=r.user.nama;showView('studentHome');loadStudentExams();}else{document.getElementById('teacherSidebar').classList.remove('hidden');document.getElementById('studentSidebar').classList.add('hidden');showView('dashboard');}}).login(document.getElementById('username').value,document.getElementById('password').value);}
 function logout(){if(APP.timer)clearInterval(APP.timer);APP={user:null,mapel:[],kategori:[],guru:[],bank:[],exams:[],studentExams:[],attempt:null,timer:null,currentIndex:0,answers:{},imageBaseUrl:''};document.getElementById('mainPage').classList.add('hidden');document.getElementById('loginPage').classList.remove('hidden');document.getElementById('password').value='';}
-function showView(name,button){document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));const t=document.getElementById(name+'View');if(t)t.classList.remove('hidden');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));if(button)button.classList.add('active');if(name==='bankSoal')loadBank();if(name==='kategori')renderCategoryList();if(name==='ujian')loadExams();if(name==='studentHome'||name==='studentExams')loadStudentExams();queueMathTypeset();}
+function toggleNavGroup(button) {
+  const group = button.closest('.nav-group');
+  if (!group) return;
+
+  const isOpen = group.classList.toggle('is-open');
+  button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+}
+
+function showView(name, button) {
+  document.querySelectorAll('.view').forEach(v => {
+    v.classList.add('hidden');
+  });
+
+  const target = document.getElementById(name + 'View');
+  if (target) target.classList.remove('hidden');
+
+  document.querySelectorAll('.nav-item').forEach(b => {
+    b.classList.remove('active');
+  });
+
+  document.querySelectorAll('.nav-group-toggle').forEach(b => {
+    b.classList.remove('is-active');
+  });
+
+  if (button) {
+    button.classList.add('active');
+
+    const group = button.closest('.nav-group');
+    if (group) {
+      group.classList.add('is-open');
+
+      const toggle = group.querySelector('.nav-group-toggle');
+      if (toggle) {
+        toggle.classList.add('is-active');
+        toggle.setAttribute('aria-expanded', 'true');
+      }
+    }
+  }
+
+  if (name === 'bankSoal') loadBank();
+  if (name === 'kategori') renderCategoryList();
+  if (name === 'ujian') loadExams();
+  if (name === 'studentHome' || name === 'studentExams') {
+    loadStudentExams();
+  }
+
+  queueMathTypeset();
+}
 function renderSubjects(){document.getElementById('subjectGrid').innerHTML=APP.mapel.map(m=>`<div class="subject-card"><div class="subject-code">${escapeHtml(m.kode)}</div><div class="subject-name">${escapeHtml(m.namaMapel)}</div><div class="muted" style="margin-top:8px">Bank soal & evaluasi TKA</div></div>`).join('');}
 function populateMapelSelects(){['qMapel','filterMapel','examMapel','catMapel'].forEach(id=>{const e=document.getElementById(id);if(!e)return;e.innerHTML='<option value="">Pilih mata pelajaran</option>'+APP.mapel.map(m=>`<option value="${m.idMapel}">${escapeHtml(m.namaMapel)}</option>`).join('');});populateQuestionCategories();populateFilterCategories();}
 function populateQuestionCategories(){const id=document.getElementById('qMapel').value,e=document.getElementById('qKategori');const cats=APP.kategori.filter(k=>k.idMapel===id);e.innerHTML='<option value="">Pilih kategori</option>'+cats.map(k=>`<option value="${k.idKategori}">${escapeHtml(k.namaKategori)}</option>`).join('');}
