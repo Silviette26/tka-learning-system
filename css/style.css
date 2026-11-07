@@ -3588,3 +3588,116 @@ textarea:focus-visible{
     min-width: 560px;
   }
 }
+
+/* =========================================================
+   EXAM BUILDER — DESKTOP CARD FIX
+   Khusus laptop/desktop. Tampilan HP tetap dipertahankan.
+   ========================================================= */
+
+@media (min-width: 851px) {
+
+  /* Jarak antarbagian pembuat ujian */
+  #examQuestionList {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    width: 100%;
+    align-items: start;
+  }
+
+  /* Kotak filter kategori */
+  #examQuestionList .exam-builder-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    background: #f8fbf9;
+    border: 1px solid #e1eae4;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(24, 55, 48, .04);
+  }
+
+  #examQuestionList .exam-builder-toolbar label {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 750;
+    color: #24443b;
+  }
+
+  #examQuestionList .exam-builder-toolbar select {
+    width: auto;
+    min-width: 260px;
+    max-width: 100%;
+    min-height: 44px;
+    background: #fff;
+    border: 1px solid #d6e3dc;
+    border-radius: 10px;
+  }
+
+  /* Kotak ringkasan soal terpilih */
+  #examQuestionList #examBuilderSummary {
+    display: block;
+    width: 100%;
+    padding: 20px;
+    background: #f4faf6;
+    border: 1px solid #cfe4d7;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(24, 55, 48, .04);
+  }
+
+  /* Jarak antar kelompok kategori di ringkasan */
+  #examQuestionList #examBuilderSummary > * {
+    margin-bottom: 12px;
+  }
+
+  #examQuestionList #examBuilderSummary > *:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Daftar soal tersedia */
+  #examQuestionList #examBuilderQuestionItems {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px;
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  /* Setiap soal menjadi kartu */
+  #examQuestionList #examBuilderQuestionItems > * {
+    min-width: 0;
+    padding: 17px;
+    background: #fff;
+    border: 1px solid #e1eae4;
+    border-radius: 13px;
+    box-shadow: 0 3px 12px rgba(24, 55, 48, .045);
+    transition: border-color .18s ease, box-shadow .18s ease;
+  }
+
+  #examQuestionList #examBuilderQuestionItems > *:hover {
+    border-color: #b9d7ca;
+    box-shadow: 0 7px 18px rgba(24, 55, 48, .075);
+  }
+
+  /* Checkbox tidak melebar memenuhi kartu */
+  #examQuestionList #examBuilderQuestionItems input[type="checkbox"] {
+    width: auto;
+    min-width: 17px;
+    margin: 3px 8px 0 0;
+    accent-color: #176b61;
+  }
+
+  /* Teks soal */
+  #examQuestionList #examBuilderQuestionItems p {
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Laptop dengan lebar lebih terbatas */
+@media (min-width: 851px) and (max-width: 1100px) {
+  #examQuestionList #examBuilderQuestionItems {
+    grid-template-columns: 1fr;
+  }
+}
