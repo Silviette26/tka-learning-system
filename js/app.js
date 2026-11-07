@@ -203,6 +203,9 @@ function showView(name, button) {
   if (APP.user) {
   localStorage.setItem(TKA_VIEW_KEY, name);
 }
+  if (name === 'analisisTes') {
+  loadAnalysisExams();
+}
   document.querySelectorAll('.view').forEach(v => {
     v.classList.add('hidden');
   });
@@ -1412,3 +1415,502 @@ function viewStudentResult(id){google.script.run.withSuccessHandler(showStudentR
   window.toggleMathPalette=function(ev){window.openEquationEditor(ev,'questionEditor');};
   window.openOptionMath=function(ev,id){window.openEquationEditor(ev,id);};
 })();
+
+
+/* ==========================================================
+   ANALISIS TES
+   Daftar ujian, matriks jawaban, rekap, dan grafik
+========================================================== */
+
+function loadAnalysisExams() {
+  const box = document.getElementById('analysisExamList');
+  if (!box) return;
+
+  box.innerHTML = `
+    <div class="analysis-loading">
+      Memuat daftar ujian yang sudah selesai...
+    </div>
+  `;
+
+  google.script.run
+    .withSuccessHandler(rows => {
+      renderAnalysisExamList(Array.isArray(rows) ? rows : []);
+    })
+    .withFailureHandler(e => {
+      box.innerHTML = `
+        <div class="analysis-empty">
+          <b>Gagal memuat daftar ujian</b>
+          <p>${escapeHtml(e.message || 'Terjadi kesalahan.')}</p>
+          <button class="btn btn-light" onclick="loadAnalysisExams()">
+            Coba Lagi
+          </button>
+        </div>
+      `;
+    })
+    .getCompletedExamsForAnalysis(APP.user?.idUser || '');
+}
+
+
+function renderAnalysisExamList(rows) {
+  const box = document.getElementById('analysisExamList');
+  if (!box) return;
+
+  if (!rows.length) {
+    box.innerHTML = `
+      <div class="analysis-empty">
+        <div class="empty-icon">📊</div>
+        <b>Belum ada hasil ujian</b>
+        <p class="muted">
+          Ujian yang sudah dikerjakan dan dikumpulkan siswa
+          akan muncul di halaman ini.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  box.innerHTML = rows.map(e => `
+    <div class="analysis-exam-card">
+      <div class="analysis-exam-info">
+        <span class="tag">${escapeHtml(e.namaMapel || 'Mata Pelajaran')}</span>
+        <h3>${escapeHtml(e.namaUjian || 'Ujian')}</h3>
+        <div class="analysis-exam-meta">
+          <span>👥 ${Number(e.jumlahPeserta || 0)} peserta</span>
+          <span>📈 Rata-rata ${Number(e.rataRataNilai || 0).toFixed(2)}</span>
+          <span>📝 ${escapeHtml(e.status || 'Selesai')}</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        onclick="openAnalysisExam('${escapeHtml(e.idUjian)}')">
+        Lihat Analisis →
+      </button>
+    </div>
+  `).join('');
+}
+
+
+/* Membuka matriks jawaban dari ujian yang dipilih */
+function openAnalysisExam(idUjian) {
+  const listView = document.getElementById('analysisExamListView');
+  const detailView = document.getElementById('analysisDetailView');
+  const detail = document.getElementById('analysisDetail');
+
+  if (!listView || !detailView || !detail) return;
+
+  listView.classList.add('hidden');
+  detailView.classList.remove('hidden');
+
+  detail.innerHTML = `
+    <div class="card analysis-loading">
+      <div class="empty-icon">📊</div>
+      Memuat matriks jawaban siswa...
+    </div>
+  `;
+
+  google.script.run
+    .withSuccessHandler(data => {
+      renderAnalysisMatrix(data);
+    })
+    .withFailureHandler(e => {
+      detail.innerHTML = `
+        <div class="card analysis-empty">
+          <b>Gagal memuat analisis ujian</b>
+          <p>${escapeHtml(e.message || 'Terjadi kesalahan.')}</p>
+          <button class="btn btn-light" onclick="backToAnalysisExams()">
+            ← Kembali
+          </button>
+        </div>
+      `;
+    })
+    .getExamAnswerMatrix(idUjian, APP.user?.idUser || '');
+}
+
+
+/* Kembali ke daftar ujian */
+function backToAnalysisExams() {
+  document.getElementById('analysisDetailView')?.classList.add('hidden');
+  document.getElementById('analysisExamListView')?.classList.remove('hidden');
+  loadAnalysisExams();
+}
+
+
+/* Normalisasi status jawaban */
+function getAnalysisStatus(value) {
+  const status = String(value?.status || 'KOSONG').toUpperCase();
+
+  if (status === 'BENAR') return 'BENAR';
+  if (status === 'SALAH') return 'SALAH';
+  if (status === 'PARSIAL') return 'PARSIAL';
+
+  return 'KOSONG';
+}
+
+
+function getAnalysisStatusLabel(status) {
+  const labels = {
+    BENAR: 'BENAR',
+    SALAH: 'SALAH',
+    PARSIAL: 'PARSIAL',
+    KOSONG: 'KOSONG'
+  };
+
+  return labels[status] || 'KOSONG';
+}
+
+
+function getAnalysisPercentage(value, total) {
+  if (!total) return 0;
+  return (Number(value || 0) / total) * 100;
+}
+
+
+/* Mengolah rekap empat kategori untuk setiap soal */
+function calculateAnalysisSummary(columns, rows) {
+  return columns.map((column, index) => {
+    const counts = {
+      BENAR: 0,
+      SALAH: 0,
+      PARSIAL: 0,
+      KOSONG: 0
+    };
+
+    rows.forEach(row => {
+      let cell = {};
+
+      if (Array.isArray(row.cells)) {
+        cell =
+          row.cells.find(x =>
+            String(x.idSoal) === String(column.idSoal)
+          ) || row.cells[index] || {};
+      } else if (row.cells) {
+        cell = row.cells[column.idSoal] || {};
+      }
+
+      counts[getAnalysisStatus(cell)]++;
+    });
+
+    const total = rows.length;
+
+    return {
+      idSoal: column.idSoal,
+      nomor: column.nomor,
+      total,
+      benar: counts.BENAR,
+      salah: counts.SALAH,
+      parsial: counts.PARSIAL,
+      kosong: counts.KOSONG,
+      persenBenar: getAnalysisPercentage(counts.BENAR, total),
+      persenSalah: getAnalysisPercentage(counts.SALAH, total),
+      persenParsial: getAnalysisPercentage(counts.PARSIAL, total),
+      persenKosong: getAnalysisPercentage(counts.KOSONG, total)
+    };
+  });
+}
+
+
+/* Menghasilkan satu sel matriks jawaban */
+function renderAnalysisCell(cell) {
+  const status = getAnalysisStatus(cell);
+  const nomorTampil = Number(cell?.nomorTampil || 0);
+  const skor = Number(cell?.skor || 0);
+  const bobot = Number(cell?.bobot || 0);
+
+  const nomorInfo = nomorTampil
+    ? `<small class="analysis-cell-number">Tampil #${nomorTampil}</small>`
+    : '';
+
+  const skorInfo = status === 'PARSIAL'
+    ? `<small class="analysis-cell-score">${skor} / ${bobot}</small>`
+    : '';
+
+  return `
+    <td class="analysis-cell status-${status.toLowerCase()}"
+        title="${getAnalysisStatusLabel(status)}${nomorTampil ? ' · Nomor tampil: ' + nomorTampil : ''}">
+      <span>${getAnalysisStatusLabel(status)}</span>
+      ${nomorInfo}
+      ${skorInfo}
+    </td>
+  `;
+}
+
+
+/* Menampilkan matriks dan seluruh hasil analisis */
+function renderAnalysisMatrix(data) {
+  const detail = document.getElementById('analysisDetail');
+  if (!detail) return;
+
+  if (!data || !Array.isArray(data.columns) || !Array.isArray(data.rows)) {
+    detail.innerHTML = `
+      <div class="card analysis-empty">
+        Data analisis tidak ditemukan atau format data tidak sesuai.
+        <button class="btn btn-light" onclick="backToAnalysisExams()">
+          ← Kembali
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  const exam = data.exam || {};
+  const columns = data.columns;
+  const rows = data.rows;
+  const totalPeserta = rows.length;
+  const totalSoal = columns.length;
+
+  const summary = calculateAnalysisSummary(columns, rows);
+
+  const rataRata = totalPeserta
+    ? rows.reduce((sum, row) => sum + Number(row.nilai || 0), 0) / totalPeserta
+    : 0;
+
+  const summaryRows = [
+    { key: 'benar', label: 'BENAR', className: 'summary-benar' },
+    { key: 'salah', label: 'SALAH', className: 'summary-salah' },
+    { key: 'parsial', label: 'PARSIAL', className: 'summary-parsial' },
+    { key: 'kosong', label: 'KOSONG', className: 'summary-kosong' }
+  ];
+
+  const matrixHeader = `
+    <thead>
+      <tr>
+        <th class="analysis-sticky-col analysis-student-heading">
+          Peserta Didik
+        </th>
+
+        ${columns.map(col => `
+          <th class="analysis-question-heading">
+            <b>Soal ${Number(col.nomor || 0)}</b>
+            <small>${escapeHtml(typeName(col.tipe || ''))}</small>
+          </th>
+        `).join('')}
+      </tr>
+    </thead>
+  `;
+
+  const matrixBody = `
+    <tbody>
+      ${rows.map((row, index) => `
+        <tr>
+          <td class="analysis-sticky-col analysis-student-cell">
+            <b>${escapeHtml(row.nama || 'Tanpa Nama')}</b>
+            <small>${escapeHtml(row.kelas || '-')}</small>
+            <small>Nilai: ${Number(row.nilai || 0).toFixed(2)}</small>
+          </td>
+
+          ${columns.map((col, colIndex) => {
+            let cell = {};
+
+            if (Array.isArray(row.cells)) {
+              cell =
+                row.cells.find(x =>
+                  String(x.idSoal) === String(col.idSoal)
+                ) || row.cells[colIndex] || {};
+            } else if (row.cells) {
+              cell = row.cells[col.idSoal] || {};
+            }
+
+            return renderAnalysisCell(cell);
+          }).join('')}
+        </tr>
+      `).join('')}
+
+      ${summaryRows.map(item => `
+        <tr class="analysis-summary-row ${item.className}">
+          <td class="analysis-sticky-col analysis-summary-label">
+            ${item.label}
+          </td>
+
+          ${summary.map(s => {
+            const count = Number(s[item.key] || 0);
+            const percentage = getAnalysisPercentage(count, totalPeserta);
+
+            return `
+              <td class="analysis-summary-cell">
+                <b>${count}</b>
+                <small>${percentage.toFixed(0)}%</small>
+              </td>
+            `;
+          }).join('')}
+        </tr>
+      `).join('')}
+    </tbody>
+  `;
+
+  detail.innerHTML = `
+    <div class="page-heading analysis-page-heading">
+      <div>
+        <h2>${escapeHtml(exam.namaUjian || 'Analisis Hasil Ujian')}</h2>
+        <p class="muted">
+          ${escapeHtml(exam.namaMapel || '')}
+          · Analisis jawaban peserta didik
+        </p>
+      </div>
+
+      <button class="btn btn-light" onclick="backToAnalysisExams()">
+        ← Kembali ke Daftar Ujian
+      </button>
+    </div>
+
+    <div class="analysis-stat-grid">
+      <div class="analysis-stat-card">
+        <span>Jumlah Peserta</span>
+        <b>${totalPeserta}</b>
+      </div>
+
+      <div class="analysis-stat-card">
+        <span>Jumlah Soal</span>
+        <b>${totalSoal}</b>
+      </div>
+
+      <div class="analysis-stat-card">
+        <span>Rata-rata Nilai</span>
+        <b>${rataRata.toFixed(2)}</b>
+      </div>
+    </div>
+
+    <div class="card analysis-matrix-card">
+      <div class="analysis-section-heading">
+        <div>
+          <h3>Matriks Jawaban Peserta</h3>
+          <p class="muted">
+            Geser tabel ke kanan untuk melihat seluruh nomor soal.
+          </p>
+        </div>
+      </div>
+
+      <div class="analysis-legend">
+        <span><i class="legend-benar"></i> Benar</span>
+        <span><i class="legend-salah"></i> Salah</span>
+        <span><i class="legend-parsial"></i> Parsial</span>
+        <span><i class="legend-kosong"></i> Kosong</span>
+      </div>
+
+      <div class="analysis-matrix-scroll">
+        <table class="analysis-matrix">
+          ${matrixHeader}
+          ${matrixBody}
+        </table>
+      </div>
+
+      <p class="analysis-matrix-note">
+        Empat baris rekap di bagian bawah menunjukkan jumlah dan persentase
+        setiap kategori jawaban. Persentase dihitung dari seluruh peserta
+        yang telah menyelesaikan ujian (${totalPeserta} siswa).
+      </p>
+
+      <p class="analysis-matrix-note">
+        Pada ujian dengan pengacakan soal, keterangan "Tampil #"
+        menunjukkan nomor soal yang dilihat masing-masing siswa.
+      </p>
+    </div>
+
+    <div class="card analysis-chart-card">
+      <div class="analysis-section-heading">
+        <div>
+          <h3>Grafik Nilai Peserta Didik</h3>
+          <p class="muted">Perbandingan nilai seluruh peserta ujian.</p>
+        </div>
+      </div>
+
+      ${renderAnalysisStudentChart(rows)}
+    </div>
+
+    <div class="card analysis-chart-card">
+      <div class="analysis-section-heading">
+        <div>
+          <h3>Grafik Analisis Per Soal</h3>
+          <p class="muted">
+            Distribusi jawaban benar, salah, parsial, dan kosong.
+          </p>
+        </div>
+      </div>
+
+      ${renderAnalysisQuestionChart(summary)}
+    </div>
+  `;
+}
+
+
+/* Grafik perbandingan nilai siswa */
+function renderAnalysisStudentChart(rows) {
+  if (!rows.length) {
+    return '<p class="muted">Belum ada data nilai.</p>';
+  }
+
+  const sorted = [...rows].sort(
+    (a, b) => Number(b.nilai || 0) - Number(a.nilai || 0)
+  );
+
+  return `
+    <div class="analysis-student-chart">
+      ${sorted.map(row => {
+        const nilai = Math.max(0, Math.min(100, Number(row.nilai || 0)));
+
+        return `
+          <div class="analysis-bar-row">
+            <div class="analysis-bar-label">
+              ${escapeHtml(row.nama || 'Tanpa Nama')}
+            </div>
+
+            <div class="analysis-bar-track">
+              <div class="analysis-bar-fill student-score-fill"
+                   style="width:${nilai}%"></div>
+            </div>
+
+            <b class="analysis-bar-value">${nilai.toFixed(2)}</b>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+
+/* Grafik distribusi jawaban setiap soal */
+function renderAnalysisQuestionChart(summary) {
+  if (!summary.length) {
+    return '<p class="muted">Belum ada data soal.</p>';
+  }
+
+  return `
+    <div class="analysis-question-chart">
+      ${summary.map(s => `
+        <div class="analysis-question-chart-item">
+          <div class="analysis-question-chart-title">
+            <b>Soal ${Number(s.nomor || 0)}</b>
+            <small>${s.total} peserta</small>
+          </div>
+
+          <div class="analysis-stacked-bar">
+            ${s.persenBenar > 0
+              ? `<span class="stack-benar" style="width:${s.persenBenar}%"></span>`
+              : ''}
+
+            ${s.persenSalah > 0
+              ? `<span class="stack-salah" style="width:${s.persenSalah}%"></span>`
+              : ''}
+
+            ${s.persenParsial > 0
+              ? `<span class="stack-parsial" style="width:${s.persenParsial}%"></span>`
+              : ''}
+
+            ${s.persenKosong > 0
+              ? `<span class="stack-kosong" style="width:${s.persenKosong}%"></span>`
+              : ''}
+          </div>
+
+          <div class="analysis-question-chart-detail">
+            <span>Benar ${s.persenBenar.toFixed(0)}%</span>
+            <span>Salah ${s.persenSalah.toFixed(0)}%</span>
+            <span>Parsial ${s.persenParsial.toFixed(0)}%</span>
+            <span>Kosong ${s.persenKosong.toFixed(0)}%</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
