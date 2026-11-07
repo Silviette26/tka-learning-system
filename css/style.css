@@ -4046,3 +4046,324 @@ textarea:focus-visible{
     flex-direction: column;
   }
 }
+
+
+/* =========================================
+   ANALISIS TES — TAHAP 2
+   MATRIKS JAWABAN PESERTA DIDIK
+========================================= */
+
+/* Kartu matriks */
+.analysis-matrix-card {
+  padding: 22px;
+  margin-bottom: 20px;
+  border: 1px solid #e5eee8;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 18px rgba(25, 55, 40, .045);
+}
+
+.analysis-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.analysis-section-heading h3 {
+  margin: 0;
+  color: #20372d;
+  font-size: 17px;
+  font-weight: 750;
+}
+
+.analysis-section-heading .muted {
+  margin: 6px 0 0;
+  color: #78867e;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* Legenda */
+.analysis-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-bottom: 15px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f7faf8;
+}
+
+.analysis-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #56665d;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.analysis-legend i {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 4px;
+}
+
+.legend-benar { background: #28a66a; }
+.legend-salah { background: #e35d62; }
+.legend-parsial { background: #e8ae36; }
+.legend-kosong { background: #aab5ae; }
+
+/* Area scroll matriks */
+.analysis-matrix-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow: auto;
+  position: relative;
+  border: 1px solid #e3ebe5;
+  border-radius: 11px;
+  isolation: isolate;
+  scrollbar-width: thin;
+  scrollbar-color: #b9cfc0 #f1f5f2;
+}
+
+.analysis-matrix-scroll::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+.analysis-matrix-scroll::-webkit-scrollbar-track {
+  background: #f1f5f2;
+  border-radius: 10px;
+}
+
+.analysis-matrix-scroll::-webkit-scrollbar-thumb {
+  background: #b9cfc0;
+  border-radius: 10px;
+}
+
+/* Tabel utama */
+.analysis-matrix {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  font-size: 12px;
+}
+
+.analysis-matrix th,
+.analysis-matrix td {
+  min-width: 90px;
+  width: 90px;
+  padding: 11px 8px;
+  text-align: center;
+  vertical-align: middle;
+  border-right: 1px solid #edf1ee;
+  border-bottom: 1px solid #edf1ee;
+}
+
+/* Header soal */
+.analysis-matrix thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  height: 58px;
+  color: #355344;
+  background: #eff7f1;
+  font-weight: 750;
+}
+
+.analysis-question-heading b {
+  display: block;
+  font-size: 12px;
+}
+
+.analysis-question-heading small {
+  display: block;
+  margin-top: 5px;
+  color: #78877e;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* Kolom nama siswa */
+.analysis-matrix .analysis-sticky-col {
+  position: sticky;
+  left: 0;
+  min-width: 190px;
+  width: 190px;
+  max-width: 190px;
+  text-align: left;
+  box-shadow: 3px 0 6px rgba(30, 60, 40, .045);
+}
+
+.analysis-matrix thead .analysis-sticky-col {
+  z-index: 5;
+  background: #e3f1e7;
+}
+
+.analysis-student-cell {
+  z-index: 2;
+  background: #fff;
+}
+
+.analysis-student-cell b {
+  display: block;
+  overflow-wrap: anywhere;
+  color: #263d31;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.analysis-student-cell small {
+  display: block;
+  margin-top: 4px;
+  color: #7b8980;
+  font-size: 10px;
+}
+
+.analysis-matrix tbody tr:nth-child(even):not(.analysis-summary-row)
+.analysis-student-cell {
+  background: #f8fbf9;
+}
+
+/* Sel status jawaban */
+.analysis-cell {
+  height: 65px;
+  font-weight: 750;
+}
+
+.analysis-cell > span {
+  display: block;
+  font-size: 10px;
+  letter-spacing: .2px;
+}
+
+.analysis-cell small {
+  display: block;
+  margin-top: 4px;
+  font-size: 9px;
+  font-weight: 550;
+  opacity: .8;
+}
+
+.analysis-cell.status-benar {
+  color: #167447;
+  background: #e8f7ee;
+}
+
+.analysis-cell.status-salah {
+  color: #bd3e47;
+  background: #fff0f0;
+}
+
+.analysis-cell.status-parsial {
+  color: #98650c;
+  background: #fff6df;
+}
+
+.analysis-cell.status-kosong {
+  color: #68766e;
+  background: #f0f3f1;
+}
+
+/* Efek hover baris */
+.analysis-matrix tbody tr:not(.analysis-summary-row):hover
+.analysis-student-cell {
+  background: #edf7f0;
+}
+
+.analysis-matrix tbody tr:not(.analysis-summary-row):hover
+.analysis-cell {
+  filter: brightness(.97);
+}
+
+/* Empat baris rekapitulasi */
+.analysis-matrix .analysis-summary-row td {
+  height: 54px;
+  font-weight: 700;
+  background: #f7faf8;
+}
+
+.analysis-matrix .analysis-summary-row .analysis-summary-label {
+  z-index: 2;
+  font-size: 11px;
+  letter-spacing: .3px;
+  background: #edf3ef;
+}
+
+.analysis-summary-cell b {
+  display: block;
+  color: #30483a;
+  font-size: 13px;
+}
+
+.analysis-summary-cell small {
+  display: block;
+  margin-top: 3px;
+  color: #718078;
+  font-size: 10px;
+}
+
+/* Warna rekap per kategori */
+.analysis-summary-row.summary-benar .analysis-summary-label {
+  color: #167447;
+  background: #e6f5ec;
+}
+
+.analysis-summary-row.summary-salah .analysis-summary-label {
+  color: #bd3e47;
+  background: #fff0f0;
+}
+
+.analysis-summary-row.summary-parsial .analysis-summary-label {
+  color: #98650c;
+  background: #fff5df;
+}
+
+.analysis-summary-row.summary-kosong .analysis-summary-label {
+  color: #68766e;
+  background: #edf1ee;
+}
+
+/* Catatan bawah tabel */
+.analysis-matrix-note {
+  margin: 12px 0 0;
+  color: #78867e;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+/* Responsif */
+@media (max-width: 650px) {
+  .analysis-matrix-card {
+    padding: 14px;
+  }
+
+  .analysis-section-heading {
+    align-items: flex-start;
+  }
+
+  .analysis-legend {
+    gap: 9px 13px;
+    padding: 10px;
+  }
+
+  .analysis-matrix th,
+  .analysis-matrix td {
+    min-width: 76px;
+    width: 76px;
+    padding: 9px 6px;
+  }
+
+  .analysis-matrix .analysis-sticky-col {
+    min-width: 145px;
+    width: 145px;
+    max-width: 145px;
+  }
+}
