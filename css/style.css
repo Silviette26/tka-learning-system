@@ -3851,3 +3851,198 @@ textarea:focus-visible{
 #teacherSidebar .nav-chevron {
   color: #ffffff !important;
 }
+
+
+/* =========================================
+   ANALISIS TES — MODERN UI
+   TAHAP 1: DAFTAR UJIAN & RINGKASAN
+========================================= */
+
+#analisisTesView {
+  padding-bottom: 32px;
+}
+
+#analisisTesView .analysis-page-heading {
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+#analisisTesView .page-heading h2 {
+  color: #172b25;
+  font-weight: 750;
+  letter-spacing: -0.5px;
+}
+
+#analisisTesView .page-heading .muted {
+  color: #718078;
+  margin-top: 5px;
+}
+
+/* Daftar ujian */
+#analysisExamListView > .card {
+  padding: 22px;
+  border: 1px solid #e7eee9;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 18px rgba(25, 55, 40, .045);
+}
+
+#analysisExamListView .card-title {
+  font-size: 17px;
+  font-weight: 750;
+  color: #20372d;
+  margin-bottom: 18px;
+}
+
+#analysisExamList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+#analysisExamList .analysis-exam-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #e4ede7;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #ffffff, #f8fbf9);
+  transition: transform .2s ease, box-shadow .2s ease,
+              border-color .2s ease;
+}
+
+#analysisExamList .analysis-exam-card:hover {
+  transform: translateY(-3px);
+  border-color: #a9d8bb;
+  box-shadow: 0 9px 22px rgba(25, 90, 55, .09);
+}
+
+.analysis-exam-info .tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: #e9f7ee;
+  color: #197344;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .3px;
+}
+
+.analysis-exam-info h3 {
+  margin: 12px 0;
+  color: #20372d;
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.analysis-exam-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 14px;
+  color: #718078;
+  font-size: 12px;
+}
+
+#analysisExamList .analysis-exam-card .btn {
+  width: 100%;
+  justify-content: center;
+  border-radius: 9px;
+  padding: 11px 16px;
+  font-weight: 700;
+}
+
+/* Tampilan kosong */
+.analysis-empty {
+  grid-column: 1 / -1;
+  padding: 42px 20px;
+  text-align: center;
+  border: 1px dashed #d7e5dc;
+  border-radius: 14px;
+  background: #fafcfb;
+}
+
+.analysis-empty .empty-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.analysis-empty b {
+  display: block;
+  color: #294638;
+  font-size: 16px;
+}
+
+.analysis-empty p {
+  max-width: 440px;
+  margin: 8px auto 0;
+  line-height: 1.6;
+}
+
+/* Ringkasan statistik */
+.analysis-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+  margin: 0 0 20px;
+}
+
+.analysis-stat-card {
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  border: 1px solid #e5eee8;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 14px rgba(25, 55, 40, .04);
+}
+
+.analysis-stat-card span {
+  display: block;
+  margin-bottom: 9px;
+  color: #75847b;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.analysis-stat-card b {
+  display: block;
+  color: #176b43;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -.7px;
+}
+
+/* Responsif */
+@media (max-width: 650px) {
+  #analysisExamListView > .card {
+    padding: 15px;
+  }
+
+  #analysisExamList {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-stat-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .analysis-stat-card {
+    padding: 15px;
+  }
+
+  .analysis-stat-card b {
+    font-size: 24px;
+  }
+
+  #analisisTesView .analysis-page-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
