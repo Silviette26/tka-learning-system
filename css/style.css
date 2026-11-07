@@ -2957,3 +2957,634 @@ textarea:focus-visible{
     transition: none !important;
   }
 }
+
+
+/* =========================================================
+   TAHAP 4 — MODERNISASI HALAMAN UJIAN
+   TKA LEARNING SYSTEM
+   ========================================================= */
+
+/* PANEL PEMBUATAN UJIAN */
+#ujianView .card {
+  border: 1px solid #e1eae5;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(22, 58, 46, .035);
+}
+
+#examListView > .card:first-of-type {
+  padding: 24px;
+}
+
+#examListView .card-title {
+  color: #244a3e;
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+#examListView .form-grid {
+  gap: 17px;
+}
+
+#examListView .form-group label {
+  color: #38574c;
+  font-size: 13px;
+  font-weight: 750;
+  margin-bottom: 8px;
+}
+
+#examListView .form-group input:not([type="checkbox"]),
+#examListView .form-group select {
+  min-height: 45px;
+  padding: 10px 13px;
+  border: 1px solid #dce7e1;
+  border-radius: 10px;
+  background: #fff;
+  color: #293e36;
+  font-size: 14px;
+}
+
+#examListView .form-group input:focus,
+#examListView .form-group select:focus {
+  border-color: #26816d;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(38, 129, 109, .10);
+}
+
+/* PENGATURAN UJIAN */
+#examListView .settings-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  min-height: 45px;
+  padding: 9px 12px;
+  border: 1px solid #e0e9e3;
+  border-radius: 10px;
+  background: #f8faf9;
+}
+
+#examListView .settings-box label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: #50685a;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+#examListView .settings-box input {
+  accent-color: #176b5d;
+}
+
+/* JUDUL PILIH SOAL */
+#examListView h3 {
+  margin-top: 25px;
+  margin-bottom: 14px;
+  color: #294a3e;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* BUILDER MULTI-KATEGORI */
+#examQuestionList .exam-builder {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* TOOLBAR FILTER */
+#examQuestionList .exam-builder-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 13px;
+  padding: 15px;
+  border: 1px solid #e1eae4;
+  border-radius: 13px;
+  background: #f8fbf9;
+}
+
+#examQuestionList .exam-builder-filter {
+  flex: 1 1 240px;
+  max-width: 390px;
+}
+
+#examQuestionList .exam-builder-filter label {
+  display: block;
+  margin-bottom: 7px;
+  color: #456354;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+#examQuestionList .exam-builder-filter select {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid #d6e4dc;
+  border-radius: 9px;
+  background: #fff;
+  color: #315447;
+  font-size: 13px;
+}
+
+#examQuestionList .exam-builder-filter select:focus {
+  border-color: #26816d;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(38, 129, 109, .08);
+}
+
+#examQuestionList .exam-builder-hint {
+  flex: 1 1 220px;
+  color: #829188;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* RINGKASAN SOAL TERPILIH */
+#examQuestionList .exam-builder-summary {
+  padding: 16px;
+  border: 1px solid #cfe4d7;
+  border-radius: 13px;
+  background: #f4faf6;
+}
+
+#examQuestionList .exam-selection-empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #769083;
+}
+
+#examQuestionList .exam-selection-empty > span {
+  display: grid;
+  place-items: center;
+  width: 37px;
+  height: 37px;
+  flex: 0 0 37px;
+  border-radius: 10px;
+  background: #e4f1e8;
+  color: #26775d;
+  font-size: 18px;
+}
+
+#examQuestionList .exam-selection-empty b,
+#examQuestionList .exam-selection-empty small {
+  display: block;
+}
+
+#examQuestionList .exam-selection-empty b {
+  color: #416352;
+  font-size: 13px;
+}
+
+#examQuestionList .exam-selection-empty small {
+  margin-top: 4px;
+  color: #84968b;
+  font-size: 11px;
+}
+
+#examQuestionList .exam-selection-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 13px;
+}
+
+#examQuestionList .exam-selection-header b {
+  display: block;
+  color: #285744;
+  font-size: 14px;
+}
+
+#examQuestionList .exam-selection-header small {
+  display: block;
+  margin-top: 4px;
+  color: #7b9183;
+  font-size: 11px;
+}
+
+#examQuestionList .exam-selection-total {
+  color: #176b5d;
+  font-size: 26px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+#examQuestionList .exam-selection-total small {
+  display: inline;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+#examQuestionList .exam-selection-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+#examQuestionList .exam-selection-group {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #deebe2;
+  border-radius: 10px;
+  background: #fff;
+}
+
+#examQuestionList .exam-selection-category {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  margin-bottom: 7px;
+  border-bottom: 1px solid #edf2ee;
+}
+
+#examQuestionList .exam-selection-category b {
+  color: #355c49;
+  font-size: 12px;
+}
+
+#examQuestionList .exam-selection-category span {
+  color: #829388;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+#examQuestionList .exam-selected-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 0;
+  color: #708177;
+  font-size: 11px;
+}
+
+#examQuestionList .exam-selected-item button {
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  flex: 0 0 23px;
+  border: 0;
+  border-radius: 7px;
+  background: #fff0ee;
+  color: #c35b50;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+#examQuestionList .exam-selected-item button:hover {
+  background: #ffdfda;
+}
+
+/* DAFTAR SOAL */
+#examQuestionList .exam-builder-question-items {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+#examQuestionList .exam-builder-list-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 3px;
+  color: #426151;
+  font-size: 12px;
+}
+
+#examQuestionList .exam-builder-list-heading span {
+  color: #829188;
+  font-size: 11px;
+}
+
+/* KARTU SOAL */
+#examQuestionList .exam-question-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 14px 15px;
+  border: 1px solid #e1eae4;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+
+#examQuestionList .exam-question-option:hover {
+  border-color: #b9d6c5;
+  background: #fbfdfb;
+}
+
+#examQuestionList .exam-question-option.selected {
+  border-color: #9fcbb1;
+  background: #f3faf5;
+}
+
+#examQuestionList .exam-question-option > input {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  margin-top: 4px;
+  accent-color: #176b5d;
+  cursor: pointer;
+}
+
+#examQuestionList .exam-question-content {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+
+#examQuestionList .exam-question-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 9px;
+}
+
+#examQuestionList .exam-question-meta .tag {
+  padding: 4px 8px;
+  border-radius: 7px;
+  background: #edf5f1;
+  color: #557464;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+#examQuestionList .exam-question-meta .category-tag {
+  background: #eaf1fb;
+  color: #526e9b;
+}
+
+#examQuestionList .exam-question-text {
+  display: block;
+  color: #40564b;
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+#examQuestionList .exam-question-text > b {
+  display: block;
+  margin-bottom: 4px;
+  color: #315a48;
+  font-size: 11px;
+}
+
+#examQuestionList .exam-question-text mjx-container {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* LOADING DAN KOSONG */
+#examQuestionList .exam-builder-loading,
+#examQuestionList .exam-builder-empty {
+  padding: 30px 16px;
+  border: 1px dashed #d4e3d9;
+  border-radius: 12px;
+  background: #fafcfb;
+  color: #829188;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+#examQuestionList .exam-builder-empty b {
+  display: block;
+  color: #456454;
+}
+
+#examQuestionList .exam-builder-empty p {
+  margin: 6px 0 0;
+  font-size: 12px;
+}
+
+/* TOMBOL BUAT UJIAN */
+#examListView > .card > .actions {
+  margin-top: 20px;
+  padding-top: 17px;
+  border-top: 1px solid #e9efeb;
+}
+
+#examListView > .card > .actions .btn {
+  min-height: 44px;
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-weight: 750;
+}
+
+/* DAFTAR UJIAN */
+#examList {
+  margin-top: 18px;
+  gap: 12px;
+}
+
+#examList .exam-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 19px 21px;
+  border: 1px solid #e1eae5;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(22, 58, 46, .03);
+  cursor: pointer;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+#examList .exam-card:hover {
+  border-color: #b8d5c5;
+  box-shadow: 0 6px 18px rgba(22, 58, 46, .07);
+}
+
+#examList .exam-card h3 {
+  margin: 8px 0 5px;
+  color: #294a3e;
+  font-size: 16px;
+}
+
+#examList .exam-card .arrow {
+  color: #6b9680;
+  font-size: 25px;
+}
+
+/* DETAIL UJIAN */
+#examDetailView .page-heading {
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+#examDetailView .page-heading h2 {
+  color: #244a3e;
+}
+
+#examDetailView .actions-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#examDetailView .actions-inline .btn {
+  min-height: 39px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#examDetailView > #examDetail > .card {
+  padding: 21px;
+  margin-bottom: 16px;
+}
+
+#examDetailView .table-wrap {
+  overflow-x: auto;
+  border: 1px solid #e4ece7;
+  border-radius: 11px;
+}
+
+#examDetailView .result-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+}
+
+#examDetailView .result-table th {
+  padding: 12px 13px;
+  background: #eff6f2;
+  color: #355b49;
+  white-space: nowrap;
+}
+
+#examDetailView .result-table td {
+  padding: 12px 13px;
+  border-bottom: 1px solid #edf1ee;
+  color: #52675b;
+  line-height: 1.6;
+}
+
+#examDetailView .result-table tr:last-child td {
+  border-bottom: 0;
+}
+
+/* PREVIEW UJIAN */
+#examPreview .preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 17px;
+}
+
+#examPreview .preview-header b,
+#examPreview .preview-header .muted {
+  display: block;
+}
+
+#examPreview .preview-header .muted {
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+#examPreview .preview-question {
+  padding: 16px 0;
+  border-top: 1px solid #e8efea;
+}
+
+#examPreview .preview-question-text {
+  margin: 12px 0;
+  color: #354c40;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+/* RESPONSIVE TABLET */
+@media (max-width: 850px) {
+  #examListView > .card:first-of-type {
+    padding: 19px;
+  }
+
+  #examQuestionList .exam-selection-groups {
+    grid-template-columns: 1fr;
+  }
+
+  #examDetailView .page-heading {
+    flex-direction: column;
+  }
+}
+
+/* RESPONSIVE HP */
+@media (max-width: 650px) {
+  #examListView > .card:first-of-type {
+    padding: 15px;
+  }
+
+  #examListView .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #examListView .settings-box {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #examQuestionList .exam-builder-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  #examQuestionList .exam-builder-filter {
+    max-width: none;
+  }
+
+  #examQuestionList .exam-question-option {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  #examQuestionList .exam-question-text {
+    font-size: 12px;
+  }
+
+  #examQuestionList .exam-selection-groups {
+    grid-template-columns: 1fr;
+  }
+
+  #examList .exam-card {
+    padding: 15px;
+  }
+
+  #examList .exam-card h3 {
+    font-size: 14px;
+  }
+
+  #examDetailView .actions-inline {
+    width: 100%;
+  }
+
+  #examDetailView .actions-inline .btn {
+    flex: 1 1 auto;
+  }
+
+  #examDetailView > #examDetail > .card {
+    padding: 14px;
+  }
+
+  #examDetailView .result-table {
+    min-width: 560px;
+  }
+}
