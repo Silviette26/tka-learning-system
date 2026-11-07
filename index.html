@@ -77,7 +77,22 @@
 <section id="bankSoalView" class="view hidden"><div class="page-heading"><div><h2>Bank Soal</h2><p class="muted">Kelola soal berdasarkan mata pelajaran dan kategori.</p></div><button class="btn btn-primary" onclick="newQuestion()">+ Buat Soal</button></div><div class="filter-row"><select id="filterMapel" onchange="onFilterMapelChange()"></select><select id="filterKategori" onchange="loadBank()"></select></div><div id="bankList" class="question-list"></div></section>
 <section id="kategoriView" class="view hidden"><div class="page-heading"><div><h2>Kategori Soal</h2><p class="muted">Guru atau admin dapat menambahkan kategori sesuai kebutuhan.</p></div></div><div class="card"><div class="form-grid compact"><div class="form-group"><label>Mata Pelajaran</label><select id="catMapel"></select></div><div class="form-group"><label>Nama Kategori Baru</label><input id="catName" placeholder="Contoh: Persamaan Linear"></div></div><button class="btn btn-primary" onclick="saveCategory()">+ Tambahkan Kategori</button><div id="catMessage" class="message"></div></div><div class="card"><div class="card-title">Kategori Tersedia</div><div id="categoryList"></div></div></section>
 <section id="buatSoalView" class="view hidden"><div class="page-heading"><div><h2>Buat Soal</h2><p class="muted">Buat soal langsung dan simpan ke bank soal.</p></div></div><div class="card"><div class="form-grid"><div class="form-group"><label>Mata Pelajaran</label><select id="qMapel" onchange="populateQuestionCategories()"></select></div><div class="form-group"><label>Kategori</label><select id="qKategori"></select></div><div class="form-group"><label>Tipe Soal TKA</label><select id="qType"><option value="PG">Pilihan Ganda</option><option value="PG_KOMPLEKS">Pilihan Ganda Kompleks</option><option value="TABEL">Tabel Pernyataan</option></select></div><div class="form-group"><label>Tingkat Kesulitan</label><select id="qLevel"><option>Mudah</option><option selected>Sedang</option><option>Sulit</option></select></div><div class="form-group"><label>Bobot Soal</label><input id="qWeight" type="number" value="1" min="0.01" step="0.01"></div></div><div class="form-group"><label>Pertanyaan</label>
-<div class="question-editor-shell">
+<section id="analisisTesView" class="view hidden">
+  <div class="page-header">
+    <h2>Analisis Tes</h2>
+    <p>Analisis hasil ujian dan pemetaan jawaban peserta didik.</p>
+  </div>
+
+  <div class="card">
+    <h3>Analisis Hasil Ujian</h3>
+    <p>
+      Halaman analisis hasil ujian akan ditampilkan di sini.
+      Fitur rekap jawaban benar, salah, dan parsial per nomor soal
+      akan kita tambahkan pada tahap berikutnya.
+    </p>
+  </div>
+</section>
+  <div class="question-editor-shell">
   <div class="question-editor-toolbar">
     <div class="toolbar-hint">Tulis pertanyaan seperti biasa. Rumus dapat disisipkan di posisi kursor.</div>
     <div class="math-tool-wrap">
