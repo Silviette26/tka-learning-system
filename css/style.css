@@ -1588,3 +1588,248 @@ textarea:focus-visible{
     transition: none;
   }
 }
+
+
+/* =========================================================
+   TAHAP 3B — MODERNISASI KATEGORI SOAL
+   TKA LEARNING SYSTEM
+   CSS ONLY — Mempertahankan fungsi JavaScript
+   ========================================================= */
+
+/* 1. JARAK ANTAR PANEL KATEGORI */
+#kategoriView {
+  display: block;
+}
+
+#kategoriView > .card {
+  margin-bottom: 20px;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #e0e9e4;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(24, 58, 47, .035);
+}
+
+/* 2. PANEL FORM TAMBAH KATEGORI */
+#kategoriView > .card:first-of-type {
+  padding: 23px 24px;
+}
+
+#kategoriView .form-grid.compact {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr);
+  gap: 18px;
+  margin-bottom: 17px;
+}
+
+#kategoriView .form-group {
+  min-width: 0;
+}
+
+#kategoriView .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #38574c;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+#kategoriView .form-group input,
+#kategoriView .form-group select {
+  width: 100%;
+  min-height: 45px;
+  padding: 10px 13px;
+  background: #fff;
+  border: 1px solid #d8e5de;
+  border-radius: 10px;
+  color: #293e36;
+  font-size: 14px;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+#kategoriView .form-group input::placeholder {
+  color: #9aa9a1;
+}
+
+#kategoriView .form-group input:focus,
+#kategoriView .form-group select:focus {
+  border-color: #26816d;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(38, 129, 109, .10);
+}
+
+/* 3. TOMBOL TAMBAH KATEGORI */
+#kategoriView .btn-primary {
+  min-height: 43px;
+  padding: 10px 19px;
+  background: #176b5d;
+  border: 1px solid #176b5d;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 3px 9px rgba(23, 107, 93, .12);
+  transition: background .2s ease, box-shadow .2s ease;
+}
+
+#kategoriView .btn-primary:hover {
+  background: #105548;
+  border-color: #105548;
+  box-shadow: 0 5px 13px rgba(23, 107, 93, .17);
+}
+
+/* 4. PESAN BERHASIL / GAGAL */
+#kategoriView #catMessage {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* 5. JUDUL KATEGORI TERSEDIA */
+#kategoriView .card-title {
+  margin-bottom: 17px;
+  color: #244a3e;
+  font-size: 17px;
+  font-weight: 750;
+}
+
+/* 6. KELOMPOK PER MATA PELAJARAN */
+#kategoriView .category-group {
+  padding: 15px 0;
+  border-bottom: 1px solid #e6ede8;
+}
+
+#kategoriView .category-group:first-child {
+  padding-top: 3px;
+}
+
+#kategoriView .category-group:last-child {
+  padding-bottom: 3px;
+  border-bottom: none;
+}
+
+/* Nama mata pelajaran */
+#kategoriView .category-group > b {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 11px;
+  color: #304c40;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+/* Aksen kecil di samping nama mapel */
+#kategoriView .category-group > b::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 17px;
+  flex: 0 0 4px;
+  background: #23816c;
+  border-radius: 5px;
+}
+
+/* 7. KUMPULAN BADGE KATEGORI */
+#kategoriView .category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+#kategoriView .category-chips .tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 31px;
+  padding: 6px 11px;
+  background: #edf5f1;
+  border: 1px solid #dcebe3;
+  border-radius: 8px;
+  color: #426b5e;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  transition: background .2s ease, border-color .2s ease;
+}
+
+#kategoriView .category-chips .tag:hover {
+  background: #e2f0e9;
+  border-color: #c4dfd1;
+}
+
+/* 8. KONDISI BELUM ADA KATEGORI */
+#kategoriView .category-chips .muted {
+  display: inline-block;
+  padding: 6px 0;
+  color: #98a69e;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* 9. RESPONSIVE TABLET */
+@media (max-width: 850px) {
+  #kategoriView > .card {
+    padding: 20px;
+  }
+
+  #kategoriView .form-grid.compact {
+    gap: 14px;
+  }
+}
+
+/* 10. RESPONSIVE HP */
+@media (max-width: 650px) {
+  #kategoriView > .card {
+    padding: 17px;
+    margin-bottom: 14px;
+    border-radius: 13px;
+  }
+
+  #kategoriView .form-grid.compact {
+    grid-template-columns: 1fr;
+    gap: 13px;
+    margin-bottom: 15px;
+  }
+
+  #kategoriView .form-group input,
+  #kategoriView .form-group select {
+    min-height: 44px;
+  }
+
+  #kategoriView .btn-primary {
+    width: 100%;
+  }
+
+  #kategoriView .card-title {
+    font-size: 16px;
+  }
+
+  #kategoriView .category-group {
+    padding: 13px 0;
+  }
+
+  #kategoriView .category-group > b {
+    font-size: 13px;
+  }
+
+  #kategoriView .category-chips {
+    gap: 7px;
+  }
+
+  #kategoriView .category-chips .tag {
+    min-height: 29px;
+    padding: 5px 9px;
+    font-size: 11px;
+  }
+}
+
+/* 11. AKSESIBILITAS */
+@media (prefers-reduced-motion: reduce) {
+  #kategoriView .form-group input,
+  #kategoriView .form-group select,
+  #kategoriView .btn-primary,
+  #kategoriView .category-chips .tag {
+    transition: none;
+  }
+}
