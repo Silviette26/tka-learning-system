@@ -31,7 +31,46 @@
 <div id="app">
 <section id="loginPage" class="page-center"><div class="login-card"><div class="brand-mark">TKA</div><h1>TKA Learning System</h1><p class="muted">SMP Negeri 14 Tanjungpinang</p><div class="form-group"><label>Username</label><input id="username" placeholder="Masukkan username"></div><div class="form-group"><label>Password</label><input id="password" type="password" placeholder="Masukkan password"></div><button class="btn btn-primary btn-full" onclick="doLogin()">Masuk</button><div id="loginMessage" class="message"></div><div class="demo-note">Guru: <b>guru / guru123</b> · Siswa demo: <b>siswa1 / siswa123</b></div></div></section>
 <section id="mainPage" class="hidden"><header class="topbar"><div><div class="brand-title">TKA Learning System</div><div class="brand-subtitle">SMP Negeri 14 Tanjungpinang</div></div><div class="user-area"><span id="userName"></span><span id="userRole" class="role-pill"></span><button class="btn btn-light" onclick="logout()">Keluar</button></div></header>
-<div class="layout"><aside class="sidebar" id="teacherSidebar"><button class="nav-item active" onclick="showView('dashboard',this)">Dashboard</button><button class="nav-item" onclick="showView('bankSoal',this)">Bank Soal</button><button class="nav-item" onclick="showView('buatSoal',this)">+ Buat Soal</button><button class="nav-item" onclick="showView('kategori',this)">Kategori</button><button class="nav-item" onclick="showView('ujian',this)">Ujian</button></aside>
+<div class="layout"><aside class="sidebar" id="teacherSidebar"><div class="sidebar-nav">
+
+  <button class="nav-item" onclick="showView('dashboard',this)">
+    <span class="nav-icon">⌂</span>
+    <span>Dashboard</span>
+  </button>
+
+  <div class="nav-group">
+    <button class="nav-group-toggle" onclick="toggleNavGroup(this)" aria-expanded="true">
+      <span class="nav-icon">▤</span>
+      <span>Pembuatan Soal</span>
+      <span class="nav-chevron">⌄</span>
+    </button>
+
+    <div class="nav-submenu">
+      <button class="nav-item nav-sub-item" onclick="showView('bankSoal',this)">
+        <span>Bank Soal</span>
+      </button>
+
+      <button class="nav-item nav-sub-item" onclick="showView('kategori',this)">
+        <span>Kategori</span>
+      </button>
+
+      <button class="nav-item nav-sub-item" onclick="showView('buatSoal',this)">
+        <span>Buat Soal</span>
+      </button>
+    </div>
+  </div>
+
+  <button class="nav-item" onclick="showView('ujian',this)">
+    <span class="nav-icon">▣</span>
+    <span>Pembuatan Tes</span>
+  </button>
+
+  <button class="nav-item" onclick="showView('analisisTes',this)">
+    <span class="nav-icon">▥</span>
+    <span>Analisis Tes</span>
+  </button>
+
+</div></aside>
 <aside class="sidebar hidden" id="studentSidebar"><button class="nav-item active" onclick="showView('studentHome',this)">Beranda</button><button class="nav-item" onclick="showView('studentExams',this)">Ujian Saya</button></aside>
 <main class="content">
 <section id="dashboardView" class="view"><div class="page-heading"><div><h2>Dashboard</h2><p class="muted">Pusat pembelajaran dan evaluasi TKA SMP.</p></div></div><div class="subject-grid" id="subjectGrid"></div><div class="card"><div class="card-title">Konsep Sistem</div><div class="feature-grid"><div><b>Bank Soal</b><p>Soal dikelompokkan berdasarkan mapel dan kategori.</p></div><div><b>Editor Matematika</b><p>Pecahan, akar, pangkat, integral, dan simbol dapat ditulis langsung.</p></div><div><b>3 Bentuk Soal TKA</b><p>PG biasa, PG kompleks, dan tabel pernyataan dengan label fleksibel.</p></div><div><b>Analisis</b><p>Hasil siswa dan analisis butir berada di detail setiap ujian.</p></div></div></div></section>
