@@ -1,4 +1,3 @@
-
 let APP={user:null,mapel:[],kategori:[],guru:[],bank:[],exams:[],studentExams:[],attempt:null,timer:null,currentIndex:0,answers:{},imageBaseUrl:''};
 // =====================================
 // SESSION PERSISTENCE
